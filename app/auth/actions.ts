@@ -19,11 +19,18 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
 
 const TOKEN_MAX_AGE = 60 * 60 * 24; // 24h
 
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.COGNITO_USER_POOL_ID!,
-  tokenUse: 'id',
-  clientId: CLIENT_ID,
-});
+let _verifier: ReturnType<typeof CognitoJwtVerifier.create> | null = null;
+
+function getVerifier() {
+  if (!_verifier) {
+    _verifier = CognitoJwtVerifier.create({
+      userPoolId: process.env.COGNITO_USER_POOL_ID!,
+      tokenUse: 'id',
+      clientId: CLIENT_ID,
+    });
+  }
+  return _verifier;
+}
 
 export type AuthState = { error: string } | null;
 
@@ -33,7 +40,7 @@ export async function setSessionCookie(
   accessToken: string,
 ): Promise<{ error?: string }> {
   try {
-    await verifier.verify(idToken);
+    await getVerifier().verify(idToken);
   } catch {
     return { error: 'Invalid session. Please try again.' };
   }
