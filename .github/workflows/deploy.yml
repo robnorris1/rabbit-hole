@@ -64,10 +64,15 @@ jobs:
         run: npm ci
 
       - name: Configure AWS credentials (OIDC)
+        id: aws-creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: eu-west-2
+
+      - name: CDK bootstrap
+        working-directory: infra
+        run: npx cdk bootstrap aws://${{ steps.aws-creds.outputs.aws-account-id }}/eu-west-2
 
       - name: CDK deploy
         working-directory: infra
