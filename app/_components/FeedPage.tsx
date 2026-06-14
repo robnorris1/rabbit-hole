@@ -6,7 +6,6 @@ import type { FeedHole, DeepItem } from '@/db/queries/holes';
 import { TopBar, type CurrentUser } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
-import { Rabbit } from './Rabbit';
 
 const TABS = ['Latest', 'Most lost to', 'Going deep now', 'Shortest detours'] as const;
 

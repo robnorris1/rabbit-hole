@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 interface ThemeCtx {
   dark: boolean;
@@ -10,12 +10,10 @@ interface ThemeCtx {
 const Ctx = createContext<ThemeCtx>({ dark: false, toggleDark: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('rh-dark') === 'true';
-    setDark(stored);
-  }, []);
+  const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('rh-dark') === 'true';
+  });
 
   const toggleDark = () => {
     setDark((prev) => {
