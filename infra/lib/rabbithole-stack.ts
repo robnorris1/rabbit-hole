@@ -17,13 +17,7 @@ export class RabbitholeStack extends cdk.Stack {
     const { appEnv } = props;
     const isProd = appEnv === 'prod';
 
-    // ── Secrets Manager ──────────────────────────────────────────────────────
-    // DATABASE_URL is set manually in the console after creating the Neon project
-    const dbSecret = new secretsmanager.Secret(this, 'DbSecret', {
-      secretName: `rabbithole/${appEnv}/db`,
-      description: 'Neon PostgreSQL connection string — set via AWS console after deploy',
-    });
-
+    // Stripe secrets — still managed via Secrets Manager (Phase 5)
     const stripeSecret = new secretsmanager.Secret(this, 'StripeSecret', {
       secretName: `rabbithole/${appEnv}/stripe`,
       description: 'Stripe API keys — set via AWS console after deploy',
@@ -90,11 +84,13 @@ export class RabbitholeStack extends cdk.Stack {
         NEXT_PUBLIC_API_URL: '',
         COGNITO_USER_POOL_ID: userPool.userPoolId,
         SES_FROM_ADDRESS: 'noreply@rabbithole.app',
+        // DATABASE_URL is passed at deploy time via GitHub Actions secret
+        // and baked into the Lambda environment (encrypted at rest by AWS)
+        DATABASE_URL: process.env.DATABASE_URL ?? '',
       },
     });
 
-    // Allow the Next.js Lambda to read secrets
-    dbSecret.grantRead(nextjs.serverFunction.lambdaFunction);
+    // Allow the Next.js Lambda to read Stripe secrets (Phase 5)
     stripeSecret.grantRead(nextjs.serverFunction.lambdaFunction);
 
     // ── Outputs ──────────────────────────────────────────────────────────────
@@ -103,7 +99,6 @@ export class RabbitholeStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, 'UserPoolId', { value: userPool.userPoolId });
     new cdk.CfnOutput(this, 'UserPoolClientId', { value: userPoolClient.userPoolClientId });
-    new cdk.CfnOutput(this, 'DbSecretArn', { value: dbSecret.secretArn });
     new cdk.CfnOutput(this, 'AssetsBucketName', { value: assetsBucket.bucketName });
   }
 }

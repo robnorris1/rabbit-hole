@@ -42,10 +42,12 @@ export function SignUpForm() {
           type="password"
           required
           autoComplete="new-password"
-          minLength={8}
+          minLength={10}
+          pattern="(?=.*[A-Z])(?=.*[0-9]).{10,}"
+          title="10+ characters, at least one uppercase letter and one number"
           className="auth-input"
         />
-        <span className="auth-hint">10+ characters, uppercase letter and number required</span>
+        <span className="auth-hint">10+ characters, at least one uppercase letter and one number</span>
       </label>
 
       <button type="submit" disabled={pending} className="auth-btn">

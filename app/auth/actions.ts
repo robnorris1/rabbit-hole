@@ -85,6 +85,7 @@ export async function signUp(prevState: AuthState, formData: FormData): Promise<
   } catch (err) {
     if (err instanceof UsernameExistsException)
       return { error: 'An account with that email already exists.' };
+    console.error('SignUp error:', err);
     return { error: 'Could not create account. Please try again.' };
   }
 
