@@ -36,6 +36,8 @@ jobs:
           NEXT_PUBLIC_COGNITO_USER_POOL_ID: eu-west-2_placeholder
           NEXT_PUBLIC_COGNITO_CLIENT_ID: placeholder
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          COGNITO_USER_POOL_ID: eu-west-2_placeholder
 
   # ── Deploy: runs on merge to main only ─────────────────────────────────────
   deploy:
@@ -74,6 +76,8 @@ jobs:
           NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
           NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_CLIENT_ID }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          COGNITO_USER_POOL_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
 
       - name: CDK deploy
         working-directory: infra
