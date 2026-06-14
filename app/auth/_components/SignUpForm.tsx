@@ -45,7 +45,7 @@ export function SignUpForm() {
           minLength={8}
           className="auth-input"
         />
-        <span className="auth-hint">8+ characters, at least one number</span>
+        <span className="auth-hint">10+ characters, uppercase letter and number required</span>
       </label>
 
       <button type="submit" disabled={pending} className="auth-btn">

@@ -15,6 +15,13 @@
       "when": 1781439120204,
       "tag": "0001_sleepy_wither",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781466291887,
+      "tag": "0002_nosy_quasar",
+      "breakpoints": true
     }
   ]
 }

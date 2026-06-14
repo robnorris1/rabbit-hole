@@ -21,20 +21,12 @@ export class RabbitholeStack extends cdk.Stack {
     // DATABASE_URL is set manually in the console after creating the Neon project
     const dbSecret = new secretsmanager.Secret(this, 'DbSecret', {
       secretName: `rabbithole/${appEnv}/db`,
-      secretStringValue: cdk.SecretValue.unsafePlainText(
-        JSON.stringify({ url: 'REPLACE_WITH_NEON_CONNECTION_STRING' }),
-      ),
+      description: 'Neon PostgreSQL connection string — set via AWS console after deploy',
     });
 
     const stripeSecret = new secretsmanager.Secret(this, 'StripeSecret', {
       secretName: `rabbithole/${appEnv}/stripe`,
-      secretStringValue: cdk.SecretValue.unsafePlainText(
-        JSON.stringify({
-          secretKey: 'REPLACE_WITH_STRIPE_SECRET_KEY',
-          webhookSecret: 'REPLACE_WITH_STRIPE_WEBHOOK_SECRET',
-          proPriceId: 'REPLACE_WITH_STRIPE_PRICE_ID',
-        }),
-      ),
+      description: 'Stripe API keys — set via AWS console after deploy',
     });
 
     // ── Cognito User Pool ────────────────────────────────────────────────────
@@ -51,9 +43,9 @@ export class RabbitholeStack extends cdk.Stack {
         proStatus: new cognito.StringAttribute({ mutable: true }),
       },
       passwordPolicy: {
-        minLength: 8,
+        minLength: 10,
         requireLowercase: true,
-        requireUppercase: false,
+        requireUppercase: true,
         requireDigits: true,
         requireSymbols: false,
       },

@@ -1,8 +1,19 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from '../actions';
+import {
+  CognitoUser,
+  CognitoUserPool,
+  AuthenticationDetails,
+} from 'amazon-cognito-identity-js';
+import { setSessionCookie } from '../actions';
+
+const userPool = new CognitoUserPool({
+  UserPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID!,
+  ClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!,
+});
 
 interface Props {
   prefillEmail?: string;
@@ -10,14 +21,52 @@ interface Props {
 }
 
 export function SignInForm({ prefillEmail, confirmed }: Props) {
-  const [state, formAction, pending] = useActionState(signIn, null);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+
+    setError(null);
+
+    const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
+    const authDetails = new AuthenticationDetails({ Username: email, Password: password });
+
+    cognitoUser.authenticateUser(authDetails, {
+      onSuccess(result) {
+        const idToken = result.getIdToken().getJwtToken();
+        const accessToken = result.getAccessToken().getJwtToken();
+        startTransition(async () => {
+          const res = await setSessionCookie(idToken, accessToken);
+          if (res?.error) {
+            setError(res.error);
+          } else {
+            router.push('/');
+          }
+        });
+      },
+      onFailure(err) {
+        if (err.code === 'NotAuthorizedException') {
+          setError('Incorrect email or password.');
+        } else if (err.code === 'UserNotConfirmedException') {
+          router.push(`/auth/confirm?email=${encodeURIComponent(email)}`);
+        } else {
+          setError('Something went wrong. Please try again.');
+        }
+      },
+    });
+  }
 
   return (
-    <form action={formAction} className="auth-form">
+    <form onSubmit={handleSubmit} className="auth-form">
       {confirmed && (
         <p className="auth-notice">Email confirmed — you can sign in now.</p>
       )}
-      {state?.error && <p className="auth-error">{state.error}</p>}
+      {error && <p className="auth-error">{error}</p>}
 
       <label className="auth-label">
         Email
@@ -42,8 +91,8 @@ export function SignInForm({ prefillEmail, confirmed }: Props) {
         />
       </label>
 
-      <button type="submit" disabled={pending} className="auth-btn">
-        {pending ? 'Signing in…' : 'Sign in'}
+      <button type="submit" disabled={isPending} className="auth-btn">
+        {isPending ? 'Signing in…' : 'Sign in'}
       </button>
 
       <p className="auth-footer">

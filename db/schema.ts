@@ -9,7 +9,9 @@ import {
   date,
   primaryKey,
   index,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
@@ -96,6 +98,7 @@ export const follows = pgTable(
   (t) => [
     primaryKey({ columns: [t.followerId, t.followingId] }),
     index('follows_following_id_idx').on(t.followingId),
+    check('no_self_follow', sql`${t.followerId} != ${t.followingId}`),
   ],
 );
 

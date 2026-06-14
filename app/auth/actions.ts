@@ -2,14 +2,14 @@
 
 import {
   CognitoIdentityProviderClient,
-  InitiateAuthCommand,
   SignUpCommand,
   ConfirmSignUpCommand,
-  NotAuthorizedException,
+  GlobalSignOutCommand,
   UsernameExistsException,
   CodeMismatchException,
   ExpiredCodeException,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createUser, getUserByUsername } from '@/db/queries/users';
@@ -19,38 +19,37 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
 
 const TOKEN_MAX_AGE = 60 * 60 * 24; // 24h
 
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.COGNITO_USER_POOL_ID!,
+  tokenUse: 'id',
+  clientId: CLIENT_ID,
+});
+
 export type AuthState = { error: string } | null;
 
-export async function signIn(prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const email = (formData.get('email') as string).trim().toLowerCase();
-  const password = formData.get('password') as string;
-
-  let idToken: string;
+// Called client-side after SRP auth succeeds — validates tokens then stores in HTTP-only cookies
+export async function setSessionCookie(
+  idToken: string,
+  accessToken: string,
+): Promise<{ error?: string }> {
   try {
-    const result = await cognito.send(
-      new InitiateAuthCommand({
-        AuthFlow: 'USER_PASSWORD_AUTH',
-        ClientId: CLIENT_ID,
-        AuthParameters: { USERNAME: email, PASSWORD: password },
-      }),
-    );
-    idToken = result.AuthenticationResult?.IdToken ?? '';
-    if (!idToken) return { error: 'Authentication failed. Please try again.' };
-  } catch (err) {
-    if (err instanceof NotAuthorizedException) return { error: 'Incorrect email or password.' };
-    return { error: 'Something went wrong. Please try again.' };
+    await verifier.verify(idToken);
+  } catch {
+    return { error: 'Invalid session. Please try again.' };
   }
 
   const cookieStore = await cookies();
-  cookieStore.set('rh-token', idToken, {
+  const opts = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: TOKEN_MAX_AGE,
-  });
+  };
+  cookieStore.set('rh-token', idToken, opts);
+  cookieStore.set('rh-access', accessToken, opts);
 
-  redirect('/');
+  return {};
 }
 
 export async function signUp(prevState: AuthState, formData: FormData): Promise<AuthState> {
@@ -107,6 +106,17 @@ export async function confirmSignUp(prevState: AuthState, formData: FormData): P
 
 export async function signOut(): Promise<void> {
   const cookieStore = await cookies();
+  const accessToken = cookieStore.get('rh-access')?.value;
+
+  if (accessToken) {
+    try {
+      await cognito.send(new GlobalSignOutCommand({ AccessToken: accessToken }));
+    } catch {
+      // Proceed with local sign-out even if revocation fails
+    }
+  }
+
   cookieStore.delete('rh-token');
+  cookieStore.delete('rh-access');
   redirect('/');
 }
