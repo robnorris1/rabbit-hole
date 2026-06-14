@@ -69,8 +69,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: eu-west-2
 
-      - name: Build Next.js app
-        run: npm run build
+      - name: CDK deploy
+        working-directory: infra
+        run: npx cdk deploy --context env=prod --require-approval never
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
@@ -78,7 +79,3 @@ jobs:
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           COGNITO_USER_POOL_ID: ${{ secrets.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
-
-      - name: CDK deploy
-        working-directory: infra
-        run: npx cdk deploy --context env=prod --require-approval never
