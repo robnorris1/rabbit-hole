@@ -20,7 +20,7 @@ function ProBook() {
           </div>
         </div>
         <p className="pro-copy">
-          Top-voted holes go in the book. Printed quarterly, proper type, shipped worldwide.
+          Top-voted holes go in the book. Printed quarterly, proper type.
           <em> The internet decides if yours makes the cut.</em>
         </p>
         <p className="pro-copy">
@@ -28,7 +28,7 @@ function ProBook() {
         </p>
         <div className="pro-soon">
           <span className="pro-soon-badge">Coming soon</span>
-          <span className="pro-note">£9/mo · ships worldwide · cancel anytime</span>
+          <span className="pro-note">£9/mo · cancel anytime</span>
         </div>
       </div>
     </div>

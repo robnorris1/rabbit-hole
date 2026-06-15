@@ -83,7 +83,7 @@ export function TopBar({ query, onQuery, currentUser }: Props) {
           ) : (
             <>
               <Link href="/auth/sign-in" className="navlink auth">Sign in</Link>
-              <Link href="/auth/sign-up" className="btn-write">Sign up</Link>
+              <Link href="/auth/sign-up" className="btn-write">Write a rabbit hole</Link>
             </>
           )}
         </nav>

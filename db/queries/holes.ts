@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { rabbitHoles, users } from '@/db/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 export async function getFeed() {
   return db
@@ -59,6 +59,14 @@ export async function getHoleBySlug(slug: string) {
     .limit(1);
 
   return rows[0] ?? null;
+}
+
+export async function getPublishedHoleCount(): Promise<number> {
+  const rows = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(rabbitHoles)
+    .where(eq(rabbitHoles.status, 'published'));
+  return rows[0]?.count ?? 0;
 }
 
 export async function getSeedUser() {

@@ -9,6 +9,7 @@ import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 import { isUpvoted } from '@/db/queries/upvotes';
+import { hasFlagged } from '@/db/queries/flags';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -29,7 +30,11 @@ export default async function HolePage({ params }: Props) {
   const [hole, session] = await Promise.all([getHoleBySlug(slug), getSession()]);
   if (!hole) notFound();
   const currentUser = session ? await getUserByCognitoSub(session.sub) : null;
-  const initialVoted = currentUser ? await isUpvoted(currentUser.id, hole.id) : false;
+  const isAuthor = currentUser?.username === hole.authorUsername;
+  const [initialVoted, initialFlagged] = await Promise.all([
+    currentUser ? isUpvoted(currentUser.id, hole.id) : false,
+    currentUser && !isAuthor ? hasFlagged(currentUser.id, hole.id) : false,
+  ]);
 
   const publishedDate = hole.publishedAt
     ? new Date(hole.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -107,6 +112,8 @@ export default async function HolePage({ params }: Props) {
               holeId={hole.id}
               initialVoted={initialVoted}
               isSignedIn={!!currentUser}
+              showFlag={!isAuthor}
+              initialFlagged={initialFlagged}
             />
           </article>
         </div>

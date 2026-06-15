@@ -18,7 +18,7 @@ export default async function SignInPage({ searchParams }: Props) {
         <Rabbit size={22} stroke={2.2} />
         <span>rabbithole</span>
       </Link>
-      <h1 className="auth-heading">Sign in</h1>
+      <h1 className="auth-heading">Back already.</h1>
       <SignInForm prefillEmail={email} confirmed={confirmed === '1'} />
     </div>
   );

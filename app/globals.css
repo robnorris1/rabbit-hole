@@ -181,6 +181,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -0.02em; margin: 0; max-width: 17ch; text-wrap: balance;
 }
 .masthead h1 em { font-style: italic; color: var(--accent); }
+
 .masthead .lede {
   font-family: var(--sans); margin-top: 12px;
   font-size: clamp(15px, 1.6vw, 18px); color: var(--ink-2);
@@ -380,6 +381,33 @@ a { color: inherit; text-decoration: none; }
 .manifesto p.lead { color: var(--ink); }
 .manifesto .strike { text-decoration: line-through; text-decoration-color: var(--ink-3); color: var(--ink-3); }
 
+/* ── welcome banner ────────────────────────────────────────── */
+.welcome-banner {
+  border-bottom: 1px solid var(--line);
+  background: var(--accent-soft);
+}
+.welcome-banner-in {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: 18px var(--gutter);
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.welcome-heading {
+  font-family: var(--serif); font-style: italic;
+  font-size: 18px; color: var(--ink); margin: 0;
+}
+.welcome-cta {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent);
+  transition: opacity .2s;
+}
+.welcome-cta:hover { opacity: .7; }
+.welcome-dismiss {
+  background: none; border: 0; cursor: pointer;
+  color: var(--ink-3); font-size: 18px; line-height: 1;
+  padding: 4px 0 4px 16px; transition: color .2s; flex-shrink: 0;
+}
+.welcome-dismiss:hover { color: var(--ink); }
+
 /* ── back link ─────────────────────────────────────────────── */
 .back-link {
   font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
@@ -483,6 +511,54 @@ a { color: inherit; text-decoration: none; }
   border-radius: 2px; padding: 8px 18px; cursor: pointer; transition: all .2s;
 }
 .btn-follow-active:hover { background: var(--accent); border-color: var(--accent); }
+
+/* ── flag button ───────────────────────────────────────────── */
+.flag-trigger {
+  background: none; border: 1px solid var(--line); border-radius: 2px;
+  cursor: pointer; padding: 7px 13px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3);
+  transition: border-color .2s, color .2s;
+  display: inline-block;
+}
+.flag-trigger:hover { border-color: var(--ink-3); color: var(--ink-2); }
+
+.flag-panel { display: grid; gap: 10px; }
+.flag-panel-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+.flag-reasons { display: grid; gap: 6px; }
+.flag-reason {
+  background: none; cursor: pointer; text-align: left;
+  font-family: var(--serif); font-style: italic; font-size: 15px;
+  color: var(--ink-2); border: 1px solid var(--line);
+  border-radius: 2px; padding: 9px 14px;
+  transition: border-color .2s, color .2s;
+}
+.flag-reason:hover:not(:disabled) { border-color: var(--ink-2); color: var(--ink); }
+.flag-reason:disabled { opacity: .5; cursor: not-allowed; }
+.flag-cancel {
+  background: none; border: 0; cursor: pointer; padding: 0;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-3); transition: color .2s;
+  justify-self: start;
+}
+.flag-cancel:hover { color: var(--ink); }
+.flag-confirmed {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0;
+}
+
+/* ── admin ─────────────────────────────────────────────────── */
+.admin-unpublish {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  color: var(--paper); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: 2px;
+  padding: 8px 16px; cursor: pointer; white-space: nowrap;
+  transition: opacity .2s;
+}
+.admin-unpublish:hover { opacity: .8; }
 
 /* ── responsive ────────────────────────────────────────────── */
 @media (max-width: 980px) {

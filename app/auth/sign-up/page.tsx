@@ -12,7 +12,7 @@ export default function SignUpPage() {
         <Rabbit size={22} stroke={2.2} />
         <span>rabbithole</span>
       </Link>
-      <h1 className="auth-heading">Create an account</h1>
+      <h1 className="auth-heading">About time.</h1>
       <SignUpForm />
     </div>
   );

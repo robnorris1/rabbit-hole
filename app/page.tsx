@@ -1,11 +1,16 @@
-import { getFeed } from '@/db/queries/holes';
+import { getFeed, getPublishedHoleCount } from '@/db/queries/holes';
 import { getSession } from './_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 import { getUpvotedHoleIds, getWeeklyHoleIds } from '@/db/queries/upvotes';
 import { FeedPage } from './_components/FeedPage';
 
-export default async function Page() {
-  const [holes, session, weeklyHoleIds] = await Promise.all([getFeed(), getSession(), getWeeklyHoleIds()]);
+interface Props {
+  searchParams: Promise<{ welcome?: string }>;
+}
+
+export default async function Page({ searchParams }: Props) {
+  const { welcome } = await searchParams;
+  const [holes, session, weeklyHoleIds, holeCount] = await Promise.all([getFeed(), getSession(), getWeeklyHoleIds(), getPublishedHoleCount()]);
   const currentUser = session ? await getUserByCognitoSub(session.sub) : null;
   const votedIds = currentUser ? await getUpvotedHoleIds(currentUser.id) : [];
   return (
@@ -14,6 +19,8 @@ export default async function Page() {
       currentUser={currentUser ? { username: currentUser.username } : null}
       votedIds={votedIds}
       weeklyHoleIds={weeklyHoleIds}
+      showWelcome={welcome === '1'}
+      holeCount={holeCount}
     />
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Rabbit } from './Rabbit';
+import { FlagButton } from './FlagButton';
 import { toggleUpvoteAction } from '@/app/_actions/upvote';
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
   holeId: string;
   initialVoted: boolean;
   isSignedIn: boolean;
+  showFlag?: boolean;
+  initialFlagged?: boolean;
 }
 
 function UpIcon() {
@@ -22,7 +25,7 @@ function UpIcon() {
   );
 }
 
-export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initialVoted, isSignedIn }: Props) {
+export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initialVoted, isSignedIn, showFlag, initialFlagged }: Props) {
   const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
@@ -87,6 +90,10 @@ export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initial
           {readTimeMins} min read
         </span>
       </div>
+
+      {showFlag && (
+        <FlagButton holeId={holeId} isSignedIn={isSignedIn} initialFlagged={initialFlagged ?? false} />
+      )}
     </div>
   );
 }

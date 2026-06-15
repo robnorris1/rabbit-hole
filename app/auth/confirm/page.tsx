@@ -20,7 +20,7 @@ export default async function ConfirmPage({ searchParams }: Props) {
         <Rabbit size={22} stroke={2.2} />
         <span>rabbithole</span>
       </Link>
-      <h1 className="auth-heading">Check your email</h1>
+      <h1 className="auth-heading">It&apos;s in there somewhere.</h1>
       <ConfirmForm email={email} />
     </div>
   );

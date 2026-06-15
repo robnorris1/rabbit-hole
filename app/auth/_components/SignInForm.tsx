@@ -45,7 +45,7 @@ export function SignInForm({ prefillEmail, confirmed }: Props) {
           if (res?.error) {
             setError(res.error);
           } else {
-            router.push('/');
+            router.push(confirmed ? '/?welcome=1' : '/');
           }
         });
       },
@@ -64,7 +64,7 @@ export function SignInForm({ prefillEmail, confirmed }: Props) {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       {confirmed && (
-        <p className="auth-notice">Email confirmed — you can sign in now.</p>
+        <p className="auth-notice">Email confirmed. Knew you had it in you.</p>
       )}
       {error && <p className="auth-error">{error}</p>}
 

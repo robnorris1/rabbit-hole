@@ -102,6 +102,26 @@ export const follows = pgTable(
   ],
 );
 
+// ── Flags ─────────────────────────────────────────────────────────────────────
+
+export const flags = pgTable(
+  'flags',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    holeId: uuid('hole_id')
+      .notNull()
+      .references(() => rabbitHoles.id, { onDelete: 'cascade' }),
+    reason: text('reason').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.holeId] }),
+    index('flags_hole_id_idx').on(t.holeId),
+  ],
+);
+
 // ── Book Issues ───────────────────────────────────────────────────────────────
 
 export const bookIssues = pgTable('book_issues', {

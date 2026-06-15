@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, startTransition } from 'react';
+import { useState, useMemo, useCallback, startTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { FeedHole } from '@/db/queries/holes';
@@ -111,12 +111,19 @@ interface Props {
   currentUser?: CurrentUser | null;
   votedIds?: string[];
   weeklyHoleIds?: string[];
+  showWelcome?: boolean;
+  holeCount?: number;
 }
 
-export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds }: Props) {
+export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelcome, holeCount }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<string>(TABS[0]);
+  const [welcomeVisible, setWelcomeVisible] = useState(false);
+
+  useEffect(() => {
+    if (showWelcome) setWelcomeVisible(true);
+  }, [showWelcome]);
   const [votes, setVotes] = useState<Record<string, boolean>>(() =>
     Object.fromEntries((votedIds ?? []).map((id) => [id, true])),
   );
@@ -165,18 +172,42 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds }: Props)
   const featuredPost = !query.trim() && tab === TABS[0] ? holes.find((h) => h.featured) : null;
   const listPosts = featuredPost ? filtered.filter((h) => !h.featured) : filtered;
 
+  function emptyState() {
+    if (query.trim()) {
+      return 'Nothing in the rabbit hole that matches that. Maybe you should write it.';
+    }
+    if (tab === 'This week') {
+      return 'Nothing went viral this week. Too early, or everyone\'s still reading.';
+    }
+    return 'Nobody\'s watching. Perfect time to write something weird.';
+  }
+
   return (
     <div className="shell">
       <TopBar query={query} onQuery={setQuery} currentUser={currentUser} />
+
+      {welcomeVisible && (
+        <div className="welcome-banner">
+          <div className="welcome-banner-in">
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
+              <p className="welcome-heading">It begins.</p>
+              <Link href="/write" className="welcome-cta">Write your first rabbit hole →</Link>
+            </div>
+            <button className="welcome-dismiss" onClick={() => setWelcomeVisible(false)} aria-label="Dismiss">×</button>
+          </div>
+        </div>
+      )}
 
       <section className="masthead">
         <div className="wrap">
           <div className="masthead-meta">
             <span className="kicker">Founding</span>
-            <span className="dot" />
-            <span className="mono">Invite-only</span>
-            <span className="dot" />
-            <span className="mono">Sat, 14 Jun 2026</span>
+            {holeCount != null && (
+              <>
+                <span className="dot" />
+                <span className="mono">{holeCount} rabbit {holeCount === 1 ? 'hole' : 'holes'}</span>
+              </>
+            )}
           </div>
           <h1>The internet&apos;s most specific knowledge. <em>None of it useful.</em></h1>
           <p className="lede">
@@ -195,7 +226,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds }: Props)
         </div>
       </div>
 
-      <div className="wrap">
+<div className="wrap">
         <div className="main">
           <main>
             {featuredPost && (
@@ -204,7 +235,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds }: Props)
 
             {listPosts.length === 0 ? (
               <div style={{ padding: '60px 0', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 19, color: 'var(--ink-2)' }}>
-                Nobody&apos;s watching. Perfect time to write something weird.
+                {emptyState()}
               </div>
             ) : (
               <div className={`feed layout-${layout}`}>
