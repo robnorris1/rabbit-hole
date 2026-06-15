@@ -2,14 +2,6 @@ import Link from 'next/link';
 import type { DeepItem } from '@/db/queries/holes';
 import { Rabbit } from './Rabbit';
 
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
 function ProBook() {
   return (
     <div className="side-block">
@@ -33,11 +25,13 @@ function ProBook() {
           Top-voted holes go in the book. Printed quarterly, proper type, shipped worldwide.
           <em> The internet decides if yours makes the cut.</em>
         </p>
-        <button className="pro-cta">
-          <span>Become a member</span>
-          <ArrowIcon />
-        </button>
-        <span className="pro-note">£9/mo · ships worldwide · cancel anytime</span>
+        <p className="pro-copy">
+          <em>We&apos;re writing the thing first. Membership launches once there&apos;s enough worth paying for.</em>
+        </p>
+        <div className="pro-soon">
+          <span className="pro-soon-badge">Coming soon</span>
+          <span className="pro-note">£9/mo · ships worldwide · cancel anytime</span>
+        </div>
       </div>
     </div>
   );
