@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { FeedHole, DeepItem } from '@/db/queries/holes';
+import { toggleUpvoteAction } from '@/app/_actions/upvote';
 import { TopBar, type CurrentUser } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
@@ -31,7 +33,7 @@ function Vote({ count, voted, onClick }: { count: number; voted: boolean; onClic
   );
 }
 
-function Featured({ post, voted, onVote }: { post: FeedHole; voted: boolean; onVote: () => void }) {
+function Featured({ post, count, voted, onVote }: { post: FeedHole; count: number; voted: boolean; onVote: () => void }) {
   return (
     <Link href={`/holes/${post.slug}`} className="featured">
       <div className="featured-tag">
@@ -47,20 +49,21 @@ function Featured({ post, voted, onVote }: { post: FeedHole; voted: boolean; onV
         <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
         <span className="dot" />
         <span className="filters-spacer" />
-        <Vote count={post.upvoteCount + (voted ? 1 : 0)} voted={voted} onClick={onVote} />
+        <Vote count={count} voted={voted} onClick={onVote} />
       </div>
     </Link>
   );
 }
 
-function FeedRow({ post, index, layout, voted, onVote }: {
+function FeedRow({ post, count, index, layout, voted, onVote }: {
   post: FeedHole;
+  count: number;
   index: number;
   layout: 'list' | 'cards';
   voted: boolean;
   onVote: () => void;
 }) {
-  const voteEl = <Vote count={post.upvoteCount + (voted ? 1 : 0)} voted={voted} onClick={onVote} />;
+  const voteEl = <Vote count={count} voted={voted} onClick={onVote} />;
 
   if (layout === 'cards') {
     return (
@@ -107,15 +110,39 @@ interface Props {
   holes: FeedHole[];
   deep: DeepItem[];
   currentUser?: CurrentUser | null;
+  votedIds?: string[];
 }
 
-export function FeedPage({ holes, deep, currentUser }: Props) {
+export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<string>(TABS[0]);
-  const [votes, setVotes] = useState<Record<string, boolean>>({});
+  const [votes, setVotes] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries((votedIds ?? []).map((id) => [id, true])),
+  );
+  const [initialVotedSet] = useState<Set<string>>(() => new Set(votedIds ?? []));
   const [layout] = useState<'list' | 'cards'>('list');
 
-  const toggleVote = (id: string) => setVotes((v) => ({ ...v, [id]: !v[id] }));
+  const voteCount = useCallback(
+    (post: FeedHole) =>
+      post.upvoteCount + (votes[post.id] ? 1 : 0) - (initialVotedSet.has(post.id) ? 1 : 0),
+    [votes, initialVotedSet],
+  );
+
+  const toggleVote = (id: string) => {
+    if (!currentUser) {
+      router.push('/auth/sign-in');
+      return;
+    }
+    setVotes((v) => ({ ...v, [id]: !v[id] }));
+    startTransition(async () => {
+      const result = await toggleUpvoteAction(id);
+      if (result.error) {
+        setVotes((v) => ({ ...v, [id]: !v[id] }));
+        if (result.error === 'sign-in') router.push('/auth/sign-in');
+      }
+    });
+  };
 
   const filtered = useMemo(() => {
     let list = [...holes];
@@ -126,12 +153,12 @@ export function FeedPage({ holes, deep, currentUser }: Props) {
       );
     }
     if (tab === 'Most lost to' || tab === 'Going deep now') {
-      list.sort((a, b) => (b.upvoteCount + (votes[b.id] ? 1 : 0)) - (a.upvoteCount + (votes[a.id] ? 1 : 0)));
+      list.sort((a, b) => voteCount(b) - voteCount(a));
     } else if (tab === 'Shortest detours') {
       list.sort((a, b) => a.readTimeMins - b.readTimeMins);
     }
     return list;
-  }, [holes, query, tab, votes]);
+  }, [holes, query, tab, voteCount]);
 
   const featuredPost = !query.trim() && tab === TABS[0] ? holes.find((h) => h.featured) : null;
   const listPosts = featuredPost ? filtered.filter((h) => !h.featured) : filtered;
@@ -173,7 +200,7 @@ export function FeedPage({ holes, deep, currentUser }: Props) {
         <div className="main">
           <main>
             {featuredPost && (
-              <Featured post={featuredPost} voted={!!votes[featuredPost.id]} onVote={() => toggleVote(featuredPost.id)} />
+              <Featured post={featuredPost} count={voteCount(featuredPost)} voted={!!votes[featuredPost.id]} onVote={() => toggleVote(featuredPost.id)} />
             )}
 
             {listPosts.length === 0 ? (
@@ -183,7 +210,7 @@ export function FeedPage({ holes, deep, currentUser }: Props) {
             ) : (
               <div className={`feed layout-${layout}`}>
                 {listPosts.map((p, i) => (
-                  <FeedRow key={p.id} post={p} index={i} layout={layout} voted={!!votes[p.id]} onVote={() => toggleVote(p.id)} />
+                  <FeedRow key={p.id} post={p} count={voteCount(p)} index={i} layout={layout} voted={!!votes[p.id]} onVote={() => toggleVote(p.id)} />
                 ))}
               </div>
             )}

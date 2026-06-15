@@ -1,13 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Rabbit } from './Rabbit';
+import { toggleUpvoteAction } from '@/app/_actions/upvote';
 
 interface Props {
   readTimeMins: number;
   upvoteCount: number;
   timeStat: string;
-  slug: string;
+  holeId: string;
+  initialVoted: boolean;
+  isSignedIn: boolean;
 }
 
 function UpIcon() {
@@ -18,10 +22,11 @@ function UpIcon() {
   );
 }
 
-export function EndOfHole({ readTimeMins, upvoteCount, timeStat }: Props) {
+export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initialVoted, isSignedIn }: Props) {
+  const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted] = useState(initialVoted);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -34,7 +39,23 @@ export function EndOfHole({ readTimeMins, upvoteCount, timeStat }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  const count = upvoteCount + (voted ? 1 : 0);
+  // DB count includes the initial vote if initialVoted — apply delta from current state
+  const count = upvoteCount + (voted ? 1 : 0) - (initialVoted ? 1 : 0);
+
+  const handleVote = () => {
+    if (!isSignedIn) {
+      router.push('/auth/sign-in');
+      return;
+    }
+    setVoted((v) => !v);
+    startTransition(async () => {
+      const result = await toggleUpvoteAction(holeId);
+      if (result.error) {
+        setVoted((v) => !v);
+        if (result.error === 'sign-in') router.push('/auth/sign-in');
+      }
+    });
+  };
 
   return (
     <div
@@ -55,7 +76,7 @@ export function EndOfHole({ readTimeMins, upvoteCount, timeStat }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button
           className={'vote' + (voted ? ' voted' : '')}
-          onClick={() => setVoted((v) => !v)}
+          onClick={handleVote}
           title="went down this too"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 14px', minWidth: 0 }}
         >
