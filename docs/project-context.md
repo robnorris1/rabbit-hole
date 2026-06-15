@@ -6,11 +6,13 @@ Drop this doc at the start of every Claude Code session. It is the source of tru
 
 ## What this is
 
-A UGC platform where people write about things they've gone genuinely deep on. Every post follows a loose format: **what sparked it → what you found → why it stuck**. That format *is* the editorial standard — it's what separates a rabbit hole from a blog post.
+A UGC platform where people write about things they've gone genuinely deep on. Every post follows a loose format: **what started it → what you found → why it stuck**. That format *is* the editorial standard — it's what separates a rabbit hole from a blog post.
 
 **Core monetisation:** Pro membership (£9/mo, billed quarterly = £27/charge) → quarterly printed book of the most upvoted rabbit holes. The physical book is the incentive mechanic for both writers and readers.
 
-**Brand voice:** PostHog / James Hawkins LinkedIn. Dry wit, self-aware, opinionated. Never says "community for curious minds". Never uses "journey". Tagline: *"Proof that people still think interesting thoughts."*
+**Brand voice:** Dry wit, self-aware, opinionated. Specific over general. Anti-marketing. Names the thing everyone's thinking and defuses it. Tagline: *"Proof that people still think interesting thoughts."*
+
+**Never use in copy:** "spark", "sparked", "journey", "community for curious minds", "hot take", "looksmaxxing", anything with an emoji in a headline.
 
 ---
 
@@ -23,7 +25,7 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 | 2 | Write — editor, draft/publish, slug, read time | ✅ Done |
 | 3 | Auth & Profiles — Cognito sign up/in, profiles, follows | ✅ Done |
 | 4 | Upvotes — toggle, count, optimistic UI | ✅ Done |
-| 5 | Polish — 404/empty states, mobile QA, perf, onboarding | 🔜 Next |
+| 5 | Polish — 404/empty states, mobile QA, perf, onboarding | 🔄 In progress |
 | 6 | Email — SES welcome, digest, writer onboarding | Pending |
 | 7 | Pro — Stripe checkout, webhooks, pro status gating | Deferred — build audience first |
 | 8 | Books — issue model, admin compilation, past issues | Deferred — depends on Pro |
@@ -62,6 +64,18 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 
 **Upvote flow:** vote button click → optimistic state update → `toggleUpvoteAction` → DB transaction (upvotes table + `upvote_count` on `rabbit_holes`) → revert on error. Unauthenticated users redirected to `/auth/sign-in`.
 
+### Phase 5 — what was built
+- `app/not-found.tsx` — custom 404 page ("You went too deep.")
+- `app/about/page.tsx` — about page with manifesto content
+- `app/membership/page.tsx` — Pro membership coming soon page
+- `app/book/page.tsx` — quarterly book coming soon page
+- **Write editor redesigned** — `WriteEditor.tsx` now has Title → spark ("One sentence. Be boring.") → Tags (comma-separated, above body) → body. `saveDraft` updated to save `spark` and `tags`. `getDraftById` updated to return `spark` and `tags`.
+- **Feed tabs** — reduced to 3: Latest, Most lost to, This week. "This week" sorts by most recently upvoted in last 7 days via `getWeeklyHoleIds()` in `db/queries/upvotes.ts`
+- **Sidebar** — removed "Going deep now" widget (redundant with feed). Manifesto now lives in sidebar. Pro membership block updated to "coming soon".
+- **Mobile fixes** — vote button arrow now uses `.arrow` CSS class (was unsized inline SVG). TopBar Sign in/Sign out kept visible on mobile via `.auth` class exemption in media query.
+- **Feed copy** — H1: "The internet's most specific knowledge. None of it useful." Lede: "Long reads about things nobody asked about. You're welcome." "Sparked by" → "What started it" throughout.
+- **Brand voice** — "spark" removed from all UI copy. Never use "spark", "sparked", "journey", "community for curious minds". Voice reference: PostHog homepage + James Hawkins LinkedIn. Dry, self-aware, specific, anti-marketing.
+
 ---
 
 ## Stack
@@ -74,7 +88,7 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 | Auth | AWS Cognito | SRP flow client-side. JWT validated server-side via `aws-jwt-verify`. ID token in HTTP-only cookie |
 | Infra | AWS CDK (`infra/`) | Deploy via GitHub Actions on push to `main`. Region: `eu-west-2` |
 | Deploy | `cdk-nextjs-standalone` v4 | OpenNext under the hood. CloudFront + Lambda |
-| Payments | Stripe | One product: Rabbithole Pro, quarterly billing. Phase 5 |
+| Payments | Stripe | One product: Rabbithole Pro, quarterly billing. Phase 7 — deferred until audience exists |
 | Email | AWS SES | Phase 6. Currently in sandbox mode (emails may go to spam) |
 | Styling | Tailwind v4 + CSS variables | See design tokens below |
 | Runtime | Node 25 | Native TS support via `--experimental-strip-types` |
@@ -160,7 +174,11 @@ All tokens are also registered as Tailwind colours in `@theme inline` block in `
 - Search placeholder: "What are you supposed to be doing right now?"
 - First post published: "It begins."
 - Empty feed: "Nobody's watching. Perfect time to write something weird."
-- 404: has a rabbit hole reference (not "Oops, looks like you're lost!")
+- 404 headline: "You went too deep."
+- 404 body: "This hole doesn't exist. Or it did, and someone filled it in."
+- Write editor hook field: "One sentence. Be boring."
+- Feed H1: "The internet's most specific knowledge. None of it useful."
+- Feed lede: "Long reads about things nobody asked about. You're welcome."
 
 ---
 
@@ -187,12 +205,16 @@ rabbit-hole/
 │   ├── u/[username]/
 │   │   ├── page.tsx             # Public profile page
 │   │   └── actions.ts           # toggleFollowAction
+│   ├── not-found.tsx            # Custom 404 page
+│   ├── about/page.tsx           # About page + manifesto
+│   ├── membership/page.tsx      # Pro membership — coming soon
+│   ├── book/page.tsx            # Quarterly book — coming soon
 │   ├── _components/
 │   │   ├── ThemeProvider.tsx    # Dark/light context + localStorage
 │   │   ├── TopBar.tsx           # Sticky header — auth-aware (currentUser prop)
 │   │   ├── FeedPage.tsx         # Full interactive feed (client: search/tabs/votes)
-│   │   ├── WriteEditor.tsx      # Client editor — title/body, debounced autosave, publish
-│   │   ├── Sidebar.tsx          # Pro book + Going deep now + Manifesto
+│   │   ├── WriteEditor.tsx      # Client editor — title/spark/tags/body, debounced autosave, publish
+│   │   ├── Sidebar.tsx          # Pro book (coming soon) + Manifesto
 │   │   ├── Footer.tsx           # Footer
 │   │   ├── Rabbit.tsx           # SVG rabbit motif
 │   │   └── EndOfHole.tsx        # End-of-article moment (intersection observer)
@@ -207,10 +229,10 @@ rabbit-hole/
 │   ├── seed.ts                  # Dev seed (5 rabbit holes)
 │   ├── migrations/              # Generated by drizzle-kit
 │   └── queries/
-│       ├── holes.ts             # Feed, hole by slug, deep now, drafts, profile holes
+│       ├── holes.ts             # Feed, hole by slug, drafts, profile holes
 │       ├── users.ts             # getUserByCognitoSub, getUserByUsername, createUser
 │       ├── follows.ts           # getFollowCounts, isFollowing, toggleFollow
-│       └── upvotes.ts           # getUpvotedHoleIds, isUpvoted, toggleUpvote
+│       └── upvotes.ts           # getUpvotedHoleIds, isUpvoted, toggleUpvote, getWeeklyHoleIds
 ├── infra/                       # AWS CDK app (eu-west-2)
 │   ├── bin/infra.ts
 │   ├── lib/rabbithole-stack.ts  # Cognito, S3, SES, Stripe secret, OpenNext
@@ -254,16 +276,6 @@ npm run db:studio        # Drizzle Studio (DB browser)
 5. `npm run dev` → http://localhost:3000
 
 Auth works locally — you need real Cognito env vars (`NEXT_PUBLIC_COGNITO_USER_POOL_ID`, `NEXT_PUBLIC_COGNITO_CLIENT_ID`, `COGNITO_USER_POOL_ID`) from the AWS console. See `docs/dev-setup.md`.
-
----
-
-## Phase 4 — Upvotes
-
-- Toggle upvote on feed rows and hole detail page
-- Optimistic UI (immediate count update, revert on error)
-- `upvote_count` on `rabbit_holes` updated atomically via DB transaction
-- Requires auth — prompt to sign in if not authenticated
-- `upvotes` table already in schema: `(userId, holeId)` primary key
 
 ---
 

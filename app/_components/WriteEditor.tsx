@@ -11,14 +11,22 @@ const STATUS_LABEL: Record<string, string> = {
   error: 'Save failed',
 };
 
+function parseTags(raw: string): string[] {
+  return raw.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+}
+
 export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
   const [title, setTitle] = useState(draft?.title ?? '');
+  const [spark, setSpark] = useState(draft?.spark ?? '');
   const [body, setBody] = useState(draft?.body ?? '');
+  const [tagsRaw, setTagsRaw] = useState((draft?.tags ?? []).join(', '));
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [publishing, setPublishing] = useState(false);
 
   const titleRef = useRef(title);
+  const sparkRef = useRef(spark);
   const bodyRef = useRef(body);
+  const tagsRawRef = useRef(tagsRaw);
   const holeIdRef = useRef<string | null>(draft?.id ?? null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -30,7 +38,9 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
       try {
         const result = await saveDraft(holeIdRef.current, {
           title: titleRef.current,
+          spark: sparkRef.current,
           body: bodyRef.current,
+          tags: parseTags(tagsRawRef.current),
         });
         holeIdRef.current = result.id;
         setSaveStatus('saved');
@@ -50,7 +60,9 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
     try {
       const result = await saveDraft(holeIdRef.current, {
         title: titleRef.current,
+        spark: sparkRef.current,
         body: bodyRef.current,
+        tags: parseTags(tagsRawRef.current),
       });
       holeIdRef.current = result.id;
       await publishHole(result.id);
@@ -66,7 +78,7 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
       <div style={{ maxWidth: 680 }}>
 
         {/* Toolbar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, borderBottom: '1px solid var(--line)', paddingBottom: 16 }}>
           <span style={{
             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.08em',
             textTransform: 'uppercase',
@@ -92,37 +104,58 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
           </div>
         </div>
 
-        <div style={{ borderBottom: '1px solid var(--line)', marginBottom: 40 }} />
-
         {/* Title */}
         <input
           type="text"
-          placeholder="What did you go down?"
+          placeholder="The hole"
           value={title}
-          onChange={(e) => {
-            titleRef.current = e.target.value;
-            setTitle(e.target.value);
-            scheduleSave();
-          }}
+          onChange={(e) => { titleRef.current = e.target.value; setTitle(e.target.value); scheduleSave(); }}
           style={{
             display: 'block', width: '100%',
             fontFamily: 'var(--serif)', fontWeight: 500,
             fontSize: 'clamp(28px,4vw,46px)', lineHeight: 1.08,
             letterSpacing: '-0.02em', border: 'none',
             background: 'transparent', color: 'var(--ink)',
-            outline: 'none', padding: 0, marginBottom: 28,
+            outline: 'none', padding: 0, marginBottom: 16,
+          }}
+        />
+
+        {/* Spark */}
+        <input
+          type="text"
+          placeholder="One sentence. Be boring."
+          value={spark}
+          onChange={(e) => { sparkRef.current = e.target.value; setSpark(e.target.value); scheduleSave(); }}
+          style={{
+            display: 'block', width: '100%',
+            fontFamily: 'var(--serif)', fontStyle: 'italic',
+            fontSize: 'clamp(16px,1.8vw,20px)', lineHeight: 1.5,
+            border: 'none', background: 'transparent',
+            color: 'var(--ink-2)', outline: 'none',
+            padding: 0, marginBottom: 16,
+          }}
+        />
+
+        {/* Tags */}
+        <input
+          type="text"
+          placeholder="Tags — history, engineering, cold-war"
+          value={tagsRaw}
+          onChange={(e) => { tagsRawRef.current = e.target.value; setTagsRaw(e.target.value); scheduleSave(); }}
+          style={{
+            display: 'block', width: '100%',
+            fontFamily: 'var(--mono)', fontSize: 12,
+            border: 'none', borderBottom: '1px solid var(--line)',
+            background: 'transparent', color: 'var(--ink-3)',
+            outline: 'none', padding: '0 0 24px', marginBottom: 32,
           }}
         />
 
         {/* Body */}
         <textarea
-          placeholder={"What sparked it.\nWhat you found.\nWhy it stuck.\n\nNo intro needed. No conclusion required."}
+          placeholder="Go."
           value={body}
-          onChange={(e) => {
-            bodyRef.current = e.target.value;
-            setBody(e.target.value);
-            scheduleSave();
-          }}
+          onChange={(e) => { bodyRef.current = e.target.value; setBody(e.target.value); scheduleSave(); }}
           rows={28}
           style={{
             display: 'block', width: '100%',
@@ -132,6 +165,7 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
             outline: 'none', resize: 'none', padding: 0,
           }}
         />
+
       </div>
     </div>
   );

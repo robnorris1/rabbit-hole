@@ -1,7 +1,6 @@
 import { db } from '../index.ts';
 import { upvotes, rabbitHoles } from '../schema.ts';
-import { eq, and } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
+import { eq, and, gt, sql } from 'drizzle-orm';
 
 export async function getUpvotedHoleIds(userId: string): Promise<string[]> {
   const rows = await db
@@ -18,6 +17,17 @@ export async function isUpvoted(userId: string, holeId: string): Promise<boolean
     .where(and(eq(upvotes.userId, userId), eq(upvotes.holeId, holeId)))
     .limit(1);
   return rows.length > 0;
+}
+
+export async function getWeeklyHoleIds(): Promise<string[]> {
+  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const rows = await db
+    .select({ holeId: upvotes.holeId })
+    .from(upvotes)
+    .where(gt(upvotes.createdAt, cutoff))
+    .groupBy(upvotes.holeId)
+    .orderBy(sql`max(${upvotes.createdAt}) desc`);
+  return rows.map((r) => r.holeId);
 }
 
 export async function toggleUpvote(

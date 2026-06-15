@@ -3,17 +3,17 @@
 import { useState, useMemo, useCallback, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { FeedHole, DeepItem } from '@/db/queries/holes';
+import type { FeedHole } from '@/db/queries/holes';
 import { toggleUpvoteAction } from '@/app/_actions/upvote';
 import { TopBar, type CurrentUser } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
 
-const TABS = ['Latest', 'Most lost to', 'Going deep now', 'Shortest detours'] as const;
+const TABS = ['Latest', 'Most lost to', 'This week'] as const;
 
 function UpIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 19V6M6 12l6-6 6 6" />
     </svg>
   );
@@ -43,7 +43,7 @@ function Featured({ post, count, voted, onVote }: { post: FeedHole; count: numbe
       </div>
       <h2>{post.title}</h2>
       {post.spark && (
-        <p className="spark"><b>What sparked it</b>{post.spark}</p>
+        <p className="spark"><b>What started it</b>{post.spark}</p>
       )}
       <div className="row-meta">
         <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
@@ -74,7 +74,7 @@ function FeedRow({ post, count, index, layout, voted, onVote }: {
         </div>
         <div className="row-body">
           <h3 className="row-title">{post.title}</h3>
-          {post.spark && <p className="row-spark"><b>Sparked by</b>{post.spark}</p>}
+          {post.spark && <p className="row-spark"><b>What started it</b>{post.spark}</p>}
           <div className="row-meta">
             <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
             <span className="meta-item">{post.readTimeMins} min</span>
@@ -92,7 +92,7 @@ function FeedRow({ post, count, index, layout, voted, onVote }: {
       <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
       <div className="row-body">
         <h3 className="row-title">{post.title}</h3>
-        {post.spark && <p className="row-spark"><b>Sparked by</b>{post.spark}</p>}
+        {post.spark && <p className="row-spark"><b>What started it</b>{post.spark}</p>}
         <div className="row-meta">
           <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
           <span className="meta-item">{post.readTimeMins} min</span>
@@ -108,12 +108,12 @@ function FeedRow({ post, count, index, layout, voted, onVote }: {
 
 interface Props {
   holes: FeedHole[];
-  deep: DeepItem[];
   currentUser?: CurrentUser | null;
   votedIds?: string[];
+  weeklyHoleIds?: string[];
 }
 
-export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
+export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<string>(TABS[0]);
@@ -152,10 +152,12 @@ export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
         [p.title, p.spark ?? '', p.authorUsername, ...p.tags].join(' ').toLowerCase().includes(q)
       );
     }
-    if (tab === 'Most lost to' || tab === 'Going deep now') {
+    if (tab === 'Most lost to') {
       list.sort((a, b) => voteCount(b) - voteCount(a));
-    } else if (tab === 'Shortest detours') {
-      list.sort((a, b) => a.readTimeMins - b.readTimeMins);
+    } else if (tab === 'This week') {
+      const order = new Map((weeklyHoleIds ?? []).map((id, i) => [id, i]));
+      list = list.filter((h) => order.has(h.id));
+      list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
     }
     return list;
   }, [holes, query, tab, voteCount]);
@@ -176,10 +178,9 @@ export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
             <span className="dot" />
             <span className="mono">Sat, 14 Jun 2026</span>
           </div>
-          <h1>Not every rabbit hole is worth it. These <em>are</em>.</h1>
+          <h1>The internet&apos;s most specific knowledge. <em>None of it useful.</em></h1>
           <p className="lede">
-            Written by people who know too much about one specific thing.
-            You&apos;re about to as well.
+            Long reads about things nobody asked about. You&apos;re welcome.
           </p>
         </div>
       </section>
@@ -191,8 +192,6 @@ export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
               {t}
             </button>
           ))}
-          <span className="filters-spacer" />
-          <span className="sort-note">{filtered.length} rabbit holes</span>
         </div>
       </div>
 
@@ -216,7 +215,7 @@ export function FeedPage({ holes, deep, currentUser, votedIds }: Props) {
             )}
           </main>
 
-          <Sidebar deep={deep} />
+          <Sidebar />
         </div>
       </div>
 

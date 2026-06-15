@@ -16,7 +16,7 @@ interface Props {
 
 function UpIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}>
+    <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 19V6M6 12l6-6 6 6" />
     </svg>
   );
@@ -78,13 +78,10 @@ export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initial
           className={'vote' + (voted ? ' voted' : '')}
           onClick={handleVote}
           title="went down this too"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 14px', minWidth: 0 }}
         >
           <UpIcon />
           <span className="count">{count.toLocaleString()}</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>
-            went down this too
-          </span>
+          <span className="label">went down this too</span>
         </button>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
           {readTimeMins} min read

@@ -74,7 +74,7 @@ export function TopBar({ query, onQuery, currentUser }: Props) {
                 @{currentUser.username}
               </Link>
               <form action={signOut}>
-                <button type="submit" className="navlink" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 11px' }}>
+                <button type="submit" className="navlink auth" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 11px' }}>
                   Sign out
                 </button>
               </form>
@@ -82,7 +82,7 @@ export function TopBar({ query, onQuery, currentUser }: Props) {
             </>
           ) : (
             <>
-              <Link href="/auth/sign-in" className="navlink">Sign in</Link>
+              <Link href="/auth/sign-in" className="navlink auth">Sign in</Link>
               <Link href="/auth/sign-up" className="btn-write">Sign up</Link>
             </>
           )}

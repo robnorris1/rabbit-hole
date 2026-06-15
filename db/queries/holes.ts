@@ -97,7 +97,7 @@ export async function getHolesByAuthorId(authorId: string) {
 
 export async function getDraftById(id: string) {
   const rows = await db
-    .select({ id: rabbitHoles.id, title: rabbitHoles.title, body: rabbitHoles.body })
+    .select({ id: rabbitHoles.id, title: rabbitHoles.title, spark: rabbitHoles.spark, body: rabbitHoles.body, tags: rabbitHoles.tags })
     .from(rabbitHoles)
     .where(and(eq(rabbitHoles.id, id), eq(rabbitHoles.status, 'draft')))
     .limit(1);

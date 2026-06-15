@@ -26,21 +26,21 @@ async function getAuthorId(): Promise<string> {
 
 export async function saveDraft(
   holeId: string | null,
-  data: { title: string; body: string },
+  data: { title: string; spark: string; body: string; tags: string[] },
 ): Promise<{ id: string }> {
   const authorId = await getAuthorId();
 
   if (holeId) {
     await db
       .update(rabbitHoles)
-      .set({ title: data.title, body: data.body, updatedAt: new Date() })
+      .set({ title: data.title, spark: data.spark || null, body: data.body, tags: data.tags, updatedAt: new Date() })
       .where(and(eq(rabbitHoles.id, holeId), eq(rabbitHoles.authorId, authorId)));
     return { id: holeId };
   }
 
   const [row] = await db
     .insert(rabbitHoles)
-    .values({ authorId, title: data.title || 'Untitled', body: data.body })
+    .values({ authorId, title: data.title || 'Untitled', spark: data.spark || null, body: data.body, tags: data.tags })
     .returning({ id: rabbitHoles.id });
   return { id: row.id };
 }
