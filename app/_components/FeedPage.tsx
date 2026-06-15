@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, startTransition, useEffect } from 'react';
+import { useState, useMemo, useCallback, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { FeedHole } from '@/db/queries/holes';
@@ -119,11 +119,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<string>(TABS[0]);
-  const [welcomeVisible, setWelcomeVisible] = useState(false);
-
-  useEffect(() => {
-    if (showWelcome) setWelcomeVisible(true);
-  }, [showWelcome]);
+  const [welcomeVisible, setWelcomeVisible] = useState(showWelcome ?? false);
   const [votes, setVotes] = useState<Record<string, boolean>>(() =>
     Object.fromEntries((votedIds ?? []).map((id) => [id, true])),
   );
@@ -167,7 +163,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
       list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
     }
     return list;
-  }, [holes, query, tab, voteCount]);
+  }, [holes, query, tab, voteCount, weeklyHoleIds]);
 
   const featuredPost = !query.trim() && tab === TABS[0] ? holes.find((h) => h.featured) : null;
   const listPosts = featuredPost ? filtered.filter((h) => !h.featured) : filtered;

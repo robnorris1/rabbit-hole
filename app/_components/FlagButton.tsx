@@ -50,7 +50,7 @@ export function FlagButton({ holeId, isSignedIn, initialFlagged }: Props) {
 
   return (
     <div className="flag-panel">
-      <p className="flag-panel-label">What's wrong with it?</p>
+      <p className="flag-panel-label">What&apos;s wrong with it?</p>
       <div className="flag-reasons">
         {REASONS.map((r) => (
           <button
