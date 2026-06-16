@@ -25,12 +25,12 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 | 2 | Write — editor, draft/publish, slug, read time | ✅ Done |
 | 3 | Auth & Profiles — Cognito sign up/in, profiles, follows | ✅ Done |
 | 4 | Upvotes — toggle, count, optimistic UI | ✅ Done |
-| 5 | Polish — 404/empty states, mobile QA, perf, onboarding | 🔄 In progress |
-| 6 | Email — SES welcome, digest, writer onboarding | Pending |
+| 5 | Polish — 404/empty states, mobile QA, perf, onboarding | ✅ Done |
+| 6 | Email — SES welcome, digest, writer onboarding | 🔄 In progress |
 | 7 | Pro — Stripe checkout, webhooks, pro status gating | Deferred — build audience first |
 | 8 | Books — issue model, admin compilation, past issues | Deferred — depends on Pro |
 
-**Phases 0–4 = MVP.** ✅ Complete — focus now is seeding with real writers and real holes before monetising.
+**Phases 0–5 = MVP.** ✅ Complete — focus now is seeding with real writers and real holes before monetising.
 
 **Why Stripe is deferred:** Pro membership only makes sense once there's enough content worth paying for. Ship the "coming soon" UI to signal intent, but don't build the payment flow until there's a real reader audience to convert.
 
@@ -75,6 +75,19 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 - **Mobile fixes** — vote button arrow now uses `.arrow` CSS class (was unsized inline SVG). TopBar Sign in/Sign out kept visible on mobile via `.auth` class exemption in media query.
 - **Feed copy** — H1: "The internet's most specific knowledge. None of it useful." Lede: "Long reads about things nobody asked about. You're welcome." "Sparked by" → "What started it" throughout.
 - **Brand voice** — "spark" removed from all UI copy. Never use "spark", "sparked", "journey", "community for curious minds". Voice reference: PostHog homepage + James Hawkins LinkedIn. Dry, self-aware, specific, anti-marketing.
+- **First publish overlay** — `app/_components/FirstPublishOverlay.tsx` — full-viewport overlay shown once after a writer's first publish. `publishHole` detects first publish via `getPublishedHoleCountByAuthor()` and redirects to `/holes/slug?first=1`. `HolePage` reads `searchParams` and renders the overlay. Copy: "It begins." + "Someone will read this. Probably not today."
+
+### Phase 6 — what was built
+- **Domain** — `the-rabbit-hole.app` purchased on Cloudflare. DNS managed in Cloudflare (not Route 53).
+- **ACM certificate** — created manually in `us-east-1` (CloudFront requirement). ARN stored in `infra/cdk.json` as `certArn` context value. Imported in CDK via `acm.Certificate.fromCertificateArn()`.
+- **CloudFront custom domain** — injected via `overrides.nextjsDistribution.distributionProps` (certificate + domainNames). `NextjsDomain` was not used — it requires Route 53. DNS: CNAME `the-rabbit-hole.app` → `d1nuij9aq4wvgm.cloudfront.net` in Cloudflare (DNS only, no proxy).
+- **SES domain identity** — `ses.EmailIdentity` for `the-rabbit-hole.app`. DKIM records added to Cloudflare after deploy (3 CNAMEs output as `SesDkimName0/1/2` + `SesDkimValue0/1/2`).
+- **Cognito → SES** — `UserPoolEmail.withSES()` configured so verification emails send from `noreply@the-rabbit-hole.app` via SES, not Amazon's shared sender. Subject: "Your Rabbithole verification code".
+- **SES production access** — still pending. Currently in sandbox mode (can only send to verified addresses). Request via AWS Console → SES → Account dashboard → Request production access.
+
+- **Email routing** — `hello@the-rabbit-hole.app` set up via Cloudflare Email Routing, forwards to founder Gmail. Use for sponsor/user contact.
+
+**Remaining Phase 6:** SES production access (pending approval), SES welcome email on sign-up, writer onboarding email sequence, digest.
 
 ---
 
@@ -89,7 +102,7 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 | Infra | AWS CDK (`infra/`) | Deploy via GitHub Actions on push to `main`. Region: `eu-west-2` |
 | Deploy | `cdk-nextjs-standalone` v4 | OpenNext under the hood. CloudFront + Lambda |
 | Payments | Stripe | One product: Rabbithole Pro, quarterly billing. Phase 7 — deferred until audience exists |
-| Email | AWS SES | Phase 6. Currently in sandbox mode (emails may go to spam) |
+| Email | AWS SES | Cognito verification emails send via SES from `noreply@the-rabbit-hole.app`. SES in sandbox — request production access before launch |
 | Styling | Tailwind v4 + CSS variables | See design tokens below |
 | Runtime | Node 25 | Native TS support via `--experimental-strip-types` |
 
@@ -129,6 +142,9 @@ Sign-in uses `amazon-cognito-identity-js` client-side (SRP — password never le
 
 **Lazy JWT verifier initialisation**
 `CognitoJwtVerifier.create()` validates the User Pool ID format at construction time, which would fail during `next build` with placeholder env vars. Both `session.ts` and `auth/actions.ts` use a lazy singleton pattern to defer creation until first request.
+
+**Custom domain with Cloudflare DNS**
+Domain registered on Cloudflare. DNS managed in Cloudflare (not Route 53). `cdk-nextjs-standalone`'s `NextjsDomain` construct requires Route 53 — we bypass it and inject the certificate + domain alias directly via `overrides.nextjsDistribution.distributionProps`. ACM certificate must be in `us-east-1` for CloudFront — created manually in the console, imported by ARN from `cdk.json` context. DKIM records for SES added manually in Cloudflare after each deploy (values output by CDK).
 
 ---
 
@@ -172,7 +188,7 @@ All tokens are also registered as Tailwind colours in `@theme inline` block in `
 **Key microcopy**
 - Upvote button: "went down this too"
 - Search placeholder: "What are you supposed to be doing right now?"
-- First post published: "It begins."
+- First post published overlay: "It begins." / "Someone will read this. Probably not today."
 - Empty feed: "Nobody's watching. Perfect time to write something weird."
 - 404 headline: "You went too deep."
 - 404 body: "This hole doesn't exist. Or it did, and someone filled it in."
@@ -217,7 +233,8 @@ rabbit-hole/
 │   │   ├── Sidebar.tsx          # Pro book (coming soon) + Manifesto
 │   │   ├── Footer.tsx           # Footer
 │   │   ├── Rabbit.tsx           # SVG rabbit motif
-│   │   └── EndOfHole.tsx        # End-of-article moment (intersection observer)
+│   │   ├── EndOfHole.tsx        # End-of-article moment (intersection observer)
+│   │   └── FirstPublishOverlay.tsx  # Full-viewport overlay shown after first publish
 │   ├── _actions/
 │   │   └── upvote.ts            # toggleUpvoteAction server action (auth-gated)
 │   └── _lib/
