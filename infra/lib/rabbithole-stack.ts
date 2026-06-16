@@ -96,9 +96,17 @@ export class RabbitholeStack extends cdk.Stack {
     const certificate = acm.Certificate.fromCertificateArn(this, 'Certificate', certArn);
 
     // ── Next.js (OpenNext via cdk-nextjs-standalone) ─────────────────────────
+    // Custom domain injected via distributionProps — DNS (CNAME) managed in Cloudflare
     const nextjs = new Nextjs(this, 'NextjsSite', {
       nextjsPath: '../',
-      domainProps: { domainName: DOMAIN, certificate },
+      overrides: {
+        nextjsDistribution: {
+          distributionProps: {
+            certificate,
+            domainNames: [DOMAIN],
+          },
+        },
+      },
       environment: {
         NEXT_PUBLIC_COGNITO_USER_POOL_ID: userPool.userPoolId,
         NEXT_PUBLIC_COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
