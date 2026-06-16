@@ -6,6 +6,7 @@ import { eq, and, ne } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { requireSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
+import { getPublishedHoleCountByAuthor } from '@/db/queries/holes';
 
 function toSlug(title: string): string {
   return title
@@ -17,11 +18,15 @@ function toSlug(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-async function getAuthorId(): Promise<string> {
+async function getAuthor(): Promise<{ id: string }> {
   const session = await requireSession();
   const user = await getUserByCognitoSub(session.sub);
   if (!user) throw new Error('User not found');
-  return user.id;
+  return user;
+}
+
+async function getAuthorId(): Promise<string> {
+  return (await getAuthor()).id;
 }
 
 export async function saveDraft(
@@ -78,5 +83,6 @@ export async function publishHole(holeId: string): Promise<void> {
     .set({ slug, readTimeMins, status: 'published', publishedAt: new Date(), updatedAt: new Date() })
     .where(and(eq(rabbitHoles.id, holeId), eq(rabbitHoles.authorId, authorId)));
 
-  redirect(`/holes/${slug}`);
+  const publishedCount = await getPublishedHoleCountByAuthor(authorId);
+  redirect(`/holes/${slug}${publishedCount === 1 ? '?first=1' : ''}`);
 }

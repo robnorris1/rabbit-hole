@@ -69,6 +69,14 @@ export async function getPublishedHoleCount(): Promise<number> {
   return rows[0]?.count ?? 0;
 }
 
+export async function getPublishedHoleCountByAuthor(authorId: string): Promise<number> {
+  const rows = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(rabbitHoles)
+    .where(and(eq(rabbitHoles.authorId, authorId), eq(rabbitHoles.status, 'published')));
+  return rows[0]?.count ?? 0;
+}
+
 export async function getSeedUser() {
   const rows = await db
     .select({ id: users.id })

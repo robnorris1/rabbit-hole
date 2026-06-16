@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getHoleBySlug } from '@/db/queries/holes';
 import { getTimeStat } from '@/app/_lib/time-stats';
 import { EndOfHole } from '@/app/_components/EndOfHole';
+import { FirstPublishOverlay } from '@/app/_components/FirstPublishOverlay';
 import { TopBar } from '@/app/_components/TopBar';
 import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
@@ -13,6 +14,7 @@ import { hasFlagged } from '@/db/queries/flags';
 
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -25,8 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function HolePage({ params }: Props) {
-  const { slug } = await params;
+export default async function HolePage({ params, searchParams }: Props) {
+  const [{ slug }, sp] = await Promise.all([params, searchParams]);
+  const isFirstPublish = sp.first === '1';
   const [hole, session] = await Promise.all([getHoleBySlug(slug), getSession()]);
   if (!hole) notFound();
   const currentUser = session ? await getUserByCognitoSub(session.sub) : null;
@@ -44,6 +47,7 @@ export default async function HolePage({ params }: Props) {
 
   return (
     <div className="shell">
+      {isFirstPublish && <FirstPublishOverlay />}
       <TopBar currentUser={currentUser ? { username: currentUser.username } : null} />
 
       <div className="wrap" style={{ paddingTop: 'clamp(40px,5vw,64px)', paddingBottom: 96 }}>
