@@ -10,7 +10,6 @@ export async function getFeed() {
       slug: rabbitHoles.slug,
       spark: rabbitHoles.spark,
       tags: rabbitHoles.tags,
-      featured: rabbitHoles.featured,
       readTimeMins: rabbitHoles.readTimeMins,
       upvoteCount: rabbitHoles.upvoteCount,
       publishedAt: rabbitHoles.publishedAt,
@@ -75,15 +74,6 @@ export async function getPublishedHoleCountByAuthor(authorId: string): Promise<n
     .from(rabbitHoles)
     .where(and(eq(rabbitHoles.authorId, authorId), eq(rabbitHoles.status, 'published')));
   return rows[0]?.count ?? 0;
-}
-
-export async function getSeedUser() {
-  const rows = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.cognitoSub, 'local-seed-user'))
-    .limit(1);
-  return rows[0] ?? null;
 }
 
 export async function getDraftsByAuthor(authorId: string) {

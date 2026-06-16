@@ -89,6 +89,13 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 
 **Remaining Phase 6:** SES production access (pending approval), SES welcome email on sign-up, writer onboarding email sequence, digest.
 
+### Phase 6 (continued) — polish & admin
+- **Editor's rabbit hole** — `FeedPage.tsx` features the most recently published hole by `robnorris1` (hardcoded). No DB `featured` flag needed. The featured hole is excluded from the main list by ID so it doesn't appear twice.
+- **Read time** — bumped from 200 WPM to 250 WPM in `write/actions.ts`. More accurate for online reading.
+- **Admin: Dismiss flags** — `dismissFlagsAction` in `app/admin/actions.ts` deletes all flags for a hole without unpublishing it. Shown as a "Dismiss" button alongside "Unpublish" in the admin panel. Clears the flagged state for all users on next page load.
+- **`ADMIN_USERNAME` GitHub secret** — must be set to `robnorris1` in GitHub repo secrets for the admin panel to be accessible in production.
+- **Seed data removed** — all seeded holes deleted from Neon. `db/seed.ts` kept for local dev but not used in production.
+
 ---
 
 ## Stack

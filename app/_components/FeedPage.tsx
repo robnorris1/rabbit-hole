@@ -165,8 +165,8 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
     return list;
   }, [holes, query, tab, voteCount, weeklyHoleIds]);
 
-  const featuredPost = !query.trim() && tab === TABS[0] ? holes.find((h) => h.featured) : null;
-  const listPosts = featuredPost ? filtered.filter((h) => !h.featured) : filtered;
+  const featuredPost = !query.trim() && tab === TABS[0] ? holes.find((h) => h.authorUsername === 'robnorris1') : null;
+  const listPosts = featuredPost ? filtered.filter((h) => h.id !== featuredPost.id) : filtered;
 
   function emptyState() {
     if (query.trim()) {

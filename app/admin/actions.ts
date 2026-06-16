@@ -5,6 +5,7 @@ import { rabbitHoles } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
+import { dismissFlags } from '@/db/queries/flags';
 import { revalidatePath } from 'next/cache';
 
 async function requireAdmin() {
@@ -13,6 +14,15 @@ async function requireAdmin() {
   const user = await getUserByCognitoSub(session.sub);
   if (!user || user.username !== process.env.ADMIN_USERNAME) return null;
   return user;
+}
+
+export async function dismissFlagsAction(holeId: string): Promise<void> {
+  const admin = await requireAdmin();
+  if (!admin) return;
+
+  await dismissFlags(holeId);
+
+  revalidatePath('/admin');
 }
 
 export async function unpublishHoleAction(holeId: string): Promise<void> {

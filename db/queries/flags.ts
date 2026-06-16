@@ -6,6 +6,10 @@ export async function flagHole(userId: string, holeId: string, reason: string): 
   await db.insert(flags).values({ userId, holeId, reason }).onConflictDoNothing();
 }
 
+export async function dismissFlags(holeId: string): Promise<void> {
+  await db.delete(flags).where(eq(flags.holeId, holeId));
+}
+
 export async function hasFlagged(userId: string, holeId: string): Promise<boolean> {
   const rows = await db
     .select({ holeId: flags.holeId })

@@ -62,7 +62,7 @@ export async function publishHole(holeId: string): Promise<void> {
   if (!hole) throw new Error('Draft not found');
 
   const wordCount = hole.body.trim().split(/\s+/).filter(Boolean).length;
-  const readTimeMins = Math.max(1, Math.round(wordCount / 200));
+  const readTimeMins = Math.max(1, Math.round(wordCount / 250));
 
   const baseSlug = toSlug(hole.title) || 'untitled';
   let slug = baseSlug;

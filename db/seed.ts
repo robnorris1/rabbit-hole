@@ -42,8 +42,7 @@ What gets me is the stubbornness of it. The Arctic summer is extraordinary — c
       tags: ['birds', 'migration', 'the-long-way-round'],
       readTimeMins: 12,
       status: 'published' as const,
-      featured: true,
-      upvoteCount: 1284,
+upvoteCount: 1284,
       publishedAt: new Date('2026-05-01'),
     },
     {

@@ -6,7 +6,7 @@ import { getUserByCognitoSub } from '@/db/queries/users';
 import { getFlaggedHoles } from '@/db/queries/flags';
 import { TopBar } from '@/app/_components/TopBar';
 import { Footer } from '@/app/_components/Footer';
-import { unpublishHoleAction } from './actions';
+import { unpublishHoleAction, dismissFlagsAction } from './actions';
 
 export const metadata: Metadata = { title: 'Admin — rabbithole' };
 
@@ -76,13 +76,20 @@ export default async function AdminPage() {
                       </ul>
                     </div>
 
-                    {hole.status === 'published' && (
-                      <form action={unpublishHoleAction.bind(null, hole.id)}>
-                        <button type="submit" className="admin-unpublish">
-                          Unpublish
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <form action={dismissFlagsAction.bind(null, hole.id)}>
+                        <button type="submit" className="admin-dismiss">
+                          Dismiss
                         </button>
                       </form>
-                    )}
+                      {hole.status === 'published' && (
+                        <form action={unpublishHoleAction.bind(null, hole.id)}>
+                          <button type="submit" className="admin-unpublish">
+                            Unpublish
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
