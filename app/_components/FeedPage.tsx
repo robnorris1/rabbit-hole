@@ -42,9 +42,7 @@ function Featured({ post, count, voted, onVote }: { post: FeedHole; count: numbe
         <span className="mono">{post.readTimeMins} min</span>
       </div>
       <h2>{post.title}</h2>
-      {post.spark && (
-        <p className="spark"><b>What started it</b>{post.spark}</p>
-      )}
+      {post.excerpt && <p className="row-excerpt">{post.excerpt}</p>}
       <div className="row-meta">
         <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
         <span className="dot" />
@@ -89,7 +87,7 @@ function FeedRow({ post, count, index, layout, voted, onVote, onTagClick }: {
         </div>
         <div className="row-body">
           <h3 className="row-title">{post.title}</h3>
-          {post.spark && <p className="row-spark"><b>What started it</b>{post.spark}</p>}
+          {post.excerpt && <p className="row-excerpt">{post.excerpt}</p>}
           <div className="row-meta">
             <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
             <span className="meta-item">{post.readTimeMins} min</span>
@@ -105,7 +103,7 @@ function FeedRow({ post, count, index, layout, voted, onVote, onTagClick }: {
       <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
       <div className="row-body">
         <h3 className="row-title">{post.title}</h3>
-        {post.spark && <p className="row-spark"><b>What started it</b>{post.spark}</p>}
+        {post.excerpt && <p className="row-excerpt">{post.excerpt}</p>}
         <div className="row-meta">
           <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
           <span className="meta-item">{post.readTimeMins} min</span>
@@ -163,7 +161,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
     const q = query.trim().toLowerCase();
     if (q) {
       list = list.filter((p) =>
-        [p.title, p.spark ?? '', p.authorUsername, ...p.tags].join(' ').toLowerCase().includes(q)
+        [p.title, p.authorUsername, ...p.tags].join(' ').toLowerCase().includes(q)
       );
     }
     if (tab === 'Most lost to') {

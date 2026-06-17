@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!hole) return {};
   return {
     title: `${hole.title} — rabbithole`,
-    description: hole.spark ?? undefined,
+    description: hole.body.split('\n\n')[0].slice(0, 160) || undefined,
   };
 }
 
@@ -71,16 +71,6 @@ export default async function HolePage({ params, searchParams }: Props) {
               }}>
                 {hole.title}
               </h1>
-
-              {hole.spark && (
-                <p style={{
-                  fontFamily: 'var(--serif)', fontStyle: 'italic',
-                  fontSize: 'clamp(16px,1.8vw,20px)', color: 'var(--ink-2)',
-                  lineHeight: 1.5, margin: '0 0 20px', maxWidth: '52ch',
-                }}>
-                  {hole.spark}
-                </p>
-              )}
 
               <div className="row-meta">
                 <span className="meta-item"><span className="author">@{hole.authorUsername}</span></span>

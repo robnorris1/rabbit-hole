@@ -8,7 +8,7 @@ export async function getFeed() {
       id: rabbitHoles.id,
       title: rabbitHoles.title,
       slug: rabbitHoles.slug,
-      spark: rabbitHoles.spark,
+      excerpt: sql<string>`LEFT(SPLIT_PART(${rabbitHoles.body}, E'\n\n', 1), 180)`,
       tags: rabbitHoles.tags,
       readTimeMins: rabbitHoles.readTimeMins,
       upvoteCount: rabbitHoles.upvoteCount,
@@ -43,7 +43,6 @@ export async function getHoleBySlug(slug: string) {
       id: rabbitHoles.id,
       title: rabbitHoles.title,
       slug: rabbitHoles.slug,
-      spark: rabbitHoles.spark,
       body: rabbitHoles.body,
       tags: rabbitHoles.tags,
       readTimeMins: rabbitHoles.readTimeMins,
@@ -90,7 +89,7 @@ export async function getHolesByAuthorId(authorId: string) {
       id: rabbitHoles.id,
       title: rabbitHoles.title,
       slug: rabbitHoles.slug,
-      spark: rabbitHoles.spark,
+      excerpt: sql<string>`LEFT(SPLIT_PART(${rabbitHoles.body}, E'\n\n', 1), 180)`,
       tags: rabbitHoles.tags,
       readTimeMins: rabbitHoles.readTimeMins,
       upvoteCount: rabbitHoles.upvoteCount,
@@ -103,7 +102,7 @@ export async function getHolesByAuthorId(authorId: string) {
 
 export async function getDraftById(id: string) {
   const rows = await db
-    .select({ id: rabbitHoles.id, title: rabbitHoles.title, spark: rabbitHoles.spark, body: rabbitHoles.body, tags: rabbitHoles.tags })
+    .select({ id: rabbitHoles.id, title: rabbitHoles.title, body: rabbitHoles.body, tags: rabbitHoles.tags })
     .from(rabbitHoles)
     .where(and(eq(rabbitHoles.id, id), eq(rabbitHoles.status, 'draft')))
     .limit(1);

@@ -115,12 +115,9 @@ export default async function ProfilePage({ params }: Props) {
                       }}>
                         {h.title}
                       </p>
-                      {h.spark && (
-                        <p style={{
-                          fontFamily: 'var(--serif)', fontStyle: 'italic',
-                          fontSize: 15, color: 'var(--ink-2)', margin: '0 0 8px',
-                        }}>
-                          {h.spark}
+                      {h.excerpt && (
+                        <p style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--ink-2)', margin: '0 0 8px', lineHeight: 1.5 }}>
+                          {h.excerpt}
                         </p>
                       )}
                       <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>

@@ -17,14 +17,12 @@ function parseTags(raw: string): string[] {
 
 export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
   const [title, setTitle] = useState(draft?.title ?? '');
-  const [spark, setSpark] = useState(draft?.spark ?? '');
   const [body, setBody] = useState(draft?.body ?? '');
   const [tagsRaw, setTagsRaw] = useState((draft?.tags ?? []).join(', '));
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [publishing, setPublishing] = useState(false);
 
   const titleRef = useRef(title);
-  const sparkRef = useRef(spark);
   const bodyRef = useRef(body);
   const tagsRawRef = useRef(tagsRaw);
   const holeIdRef = useRef<string | null>(draft?.id ?? null);
@@ -38,7 +36,6 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
       try {
         const result = await saveDraft(holeIdRef.current, {
           title: titleRef.current,
-          spark: sparkRef.current,
           body: bodyRef.current,
           tags: parseTags(tagsRawRef.current),
         });
@@ -60,7 +57,6 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
     try {
       const result = await saveDraft(holeIdRef.current, {
         title: titleRef.current,
-        spark: sparkRef.current,
         body: bodyRef.current,
         tags: parseTags(tagsRawRef.current),
       });
@@ -117,22 +113,6 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
             letterSpacing: '-0.02em', border: 'none',
             background: 'transparent', color: 'var(--ink)',
             outline: 'none', padding: 0, marginBottom: 16,
-          }}
-        />
-
-        {/* Spark */}
-        <input
-          type="text"
-          placeholder="One sentence. Be boring."
-          value={spark}
-          onChange={(e) => { sparkRef.current = e.target.value; setSpark(e.target.value); scheduleSave(); }}
-          style={{
-            display: 'block', width: '100%',
-            fontFamily: 'var(--serif)', fontStyle: 'italic',
-            fontSize: 'clamp(16px,1.8vw,20px)', lineHeight: 1.5,
-            border: 'none', background: 'transparent',
-            color: 'var(--ink-2)', outline: 'none',
-            padding: 0, marginBottom: 16,
           }}
         />
 
