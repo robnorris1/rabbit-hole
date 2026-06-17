@@ -29,7 +29,7 @@ export default async function BookPage() {
             fontSize: 'clamp(28px,4vw,46px)', lineHeight: 1.08,
             letterSpacing: '-0.02em', margin: '0 0 32px', textWrap: 'balance',
           }}>
-            Quarterly. Printed. Decided by upvotes.
+            A quarterly book, full of holes (pause).
           </h1>
 
           <div style={{
@@ -38,13 +38,7 @@ export default async function BookPage() {
             display: 'grid', gap: '1.4em', marginBottom: 40,
           }}>
             <p style={{ margin: 0 }}>
-              Four times a year, the top-voted holes get pulled into a book.
-              Proper type, proper paper. No editor. No curation. Just the ones people thought
-              were worth something.
-            </p>
-            <p style={{ margin: 0 }}>
-              Vol. 01 is the founding issue. If you publish a hole that makes the cut,
-              you&apos;re in print.
+              Vol. 01 is the founding issue. Top-voted holes go in. Voting is optional, obviously.
             </p>
             <p style={{ margin: 0, color: 'var(--ink-2)', fontStyle: 'italic' }}>
               The book ships with Pro membership — coming once there&apos;s enough to fill one.

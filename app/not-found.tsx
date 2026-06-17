@@ -28,7 +28,7 @@ export default function NotFound() {
             color: 'var(--ink-2)', lineHeight: 1.6, margin: '0 0 40px', maxWidth: '48ch',
           }}>
             This hole doesn&apos;t exist. Or it did, and someone filled it in.
-            Either way, you&apos;re somewhere the map doesn&apos;t reach.
+            Either way, this isn&apos;t it.
           </p>
 
           <Link href="/" className="back-link">← Back to the surface</Link>

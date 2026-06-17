@@ -20,15 +20,15 @@ function ProBook() {
           </div>
         </div>
         <p className="pro-copy">
-          Top-voted holes go in the book. Printed quarterly, proper type.
-          <em> The internet decides if yours makes the cut.</em>
+          Top-voted holes go in a physical book. Yes, physical.
+          <em> Voting is optional, obviously.</em>
         </p>
         <p className="pro-copy">
           <em>We&apos;re writing the thing first. Membership launches once there&apos;s enough worth paying for.</em>
         </p>
         <div className="pro-soon">
           <span className="pro-soon-badge">Coming soon</span>
-          <span className="pro-note">£9/mo · cancel anytime</span>
+          <span className="pro-note">£9/mo · you can cancel, we won&apos;t make it weird</span>
         </div>
       </div>
     </div>

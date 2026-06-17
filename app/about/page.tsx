@@ -41,12 +41,10 @@ export default async function AboutPage() {
               Neither of them had anywhere to put it.
             </p>
             <p style={{ margin: 0 }}>
-              <em>What started it, what you found, why it stuck.</em>{' '}
-              That&apos;s the format. Nothing else required.
+              Write about something you went too deep on. Nobody asked for the takeaways.
             </p>
             <p style={{ margin: 0 }}>
-              The most upvoted holes each quarter get printed into a proper book.
-              Paper, type, spine. The internet decides what&apos;s worth keeping.
+              The most upvoted holes each quarter get printed into a physical book. Yes, physical.
             </p>
           </div>
 

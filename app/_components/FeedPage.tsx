@@ -55,15 +55,30 @@ function Featured({ post, count, voted, onVote }: { post: FeedHole; count: numbe
   );
 }
 
-function FeedRow({ post, count, index, layout, voted, onVote }: {
+function FeedRow({ post, count, index, layout, voted, onVote, onTagClick }: {
   post: FeedHole;
   count: number;
   index: number;
   layout: 'list' | 'cards';
   voted: boolean;
   onVote: () => void;
+  onTagClick: (tag: string) => void;
 }) {
   const voteEl = <Vote count={count} voted={voted} onClick={onVote} />;
+
+  const tags = post.tags.length > 0 && (
+    <div className="tags">
+      {post.tags.map((t) => (
+        <button
+          key={t}
+          className="tag"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTagClick(t); }}
+        >
+          {t}
+        </button>
+      ))}
+    </div>
+  );
 
   if (layout === 'cards') {
     return (
@@ -79,9 +94,7 @@ function FeedRow({ post, count, index, layout, voted, onVote }: {
             <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
             <span className="meta-item">{post.readTimeMins} min</span>
           </div>
-          {post.tags.length > 0 && (
-            <div className="tags">{post.tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
-          )}
+          {tags}
         </div>
       </Link>
     );
@@ -96,9 +109,7 @@ function FeedRow({ post, count, index, layout, voted, onVote }: {
         <div className="row-meta">
           <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
           <span className="meta-item">{post.readTimeMins} min</span>
-          {post.tags.length > 0 && (
-            <div className="tags">{post.tags.map((t) => <span key={t} className="tag">{t}</span>)}</div>
-          )}
+          {tags}
         </div>
       </div>
       <div className="row-aside">{voteEl}</div>
@@ -173,7 +184,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
       return 'Nothing in the rabbit hole that matches that. Maybe you should write it.';
     }
     if (tab === 'This week') {
-      return 'Nothing went viral this week. Too early, or everyone\'s still reading.';
+      return 'Quiet week. We\'re working on it.';
     }
     return 'Nobody\'s watching. Perfect time to write something weird.';
   }
@@ -236,7 +247,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
             ) : (
               <div className={`feed layout-${layout}`}>
                 {listPosts.map((p, i) => (
-                  <FeedRow key={p.id} post={p} count={voteCount(p)} index={i} layout={layout} voted={!!votes[p.id]} onVote={() => toggleVote(p.id)} />
+                  <FeedRow key={p.id} post={p} count={voteCount(p)} index={i} layout={layout} voted={!!votes[p.id]} onVote={() => toggleVote(p.id)} onTagClick={setQuery} />
                 ))}
               </div>
             )}

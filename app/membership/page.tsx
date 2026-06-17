@@ -38,7 +38,7 @@ export default async function MembershipPage() {
             display: 'grid', gap: '1.4em', marginBottom: 40,
           }}>
             <p style={{ margin: 0 }}>
-              Four times a year, the top-voted holes go in a book. Printed. Shipped to your door. £9/mo, billed quarterly.
+              Four times a year, the top-voted holes get printed into a book. £9/mo, billed quarterly.
             </p>
             <p style={{ margin: 0, color: 'var(--ink-2)', fontStyle: 'italic' }}>
               We&apos;re writing the thing first. Membership opens once there&apos;s enough worth paying for.
