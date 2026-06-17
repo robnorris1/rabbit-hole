@@ -14,6 +14,17 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: 'rabbithole',
   description: 'Proof that people still think interesting thoughts.',
+  openGraph: {
+    title: 'rabbithole',
+    description: 'Proof that people still think interesting thoughts.',
+    siteName: 'rabbithole',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'rabbithole',
+    description: 'Proof that people still think interesting thoughts.',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
