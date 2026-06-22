@@ -4,6 +4,7 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as kms from 'aws-cdk-lib/aws-kms';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -52,6 +53,17 @@ export class RabbitholeStack extends cdk.Stack {
     });
 
     emailKey.grantDecrypt(customEmailSender);
+
+    // Cognito needs explicit key policy permission to encrypt codes before passing to the Lambda
+    emailKey.addToResourcePolicy(new iam.PolicyStatement({
+      sid: 'AllowCognitoToEncrypt',
+      principals: [new iam.ServicePrincipal('cognito-idp.amazonaws.com')],
+      actions: ['kms:CreateGrant', 'kms:DescribeKey'],
+      resources: ['*'],
+      conditions: {
+        StringEquals: { 'aws:SourceAccount': this.account },
+      },
+    }));
 
     // ── Cognito User Pool ────────────────────────────────────────────────────
     const userPool = new cognito.UserPool(this, 'UserPool', {
