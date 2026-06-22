@@ -2,6 +2,8 @@ import { KMSClient, DecryptCommand } from '@aws-sdk/client-kms';
 
 interface CognitoCustomEmailEvent {
   triggerSource: string;
+  userPoolId: string;
+  callerContext: { clientId: string };
   request: {
     code: string;
     userAttributes: Record<string, string>;
@@ -11,11 +13,17 @@ interface CognitoCustomEmailEvent {
 const kms = new KMSClient({});
 
 export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => {
-  const { triggerSource, request } = event;
+  const { triggerSource, userPoolId, callerContext, request } = event;
   const { code: encryptedCode, userAttributes } = request;
 
   const decryptResult = await kms.send(
-    new DecryptCommand({ CiphertextBlob: Buffer.from(encryptedCode, 'base64') }),
+    new DecryptCommand({
+      CiphertextBlob: Buffer.from(encryptedCode, 'base64'),
+      EncryptionContext: {
+        'client-id': callerContext.clientId,
+        userPoolId,
+      },
+    }),
   );
   const code = Buffer.from(decryptResult.Plaintext!).toString('utf-8');
 
