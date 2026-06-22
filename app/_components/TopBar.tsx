@@ -78,12 +78,12 @@ export function TopBar({ query, onQuery, currentUser }: Props) {
                   Sign out
                 </button>
               </form>
-              <Link href="/write" className="btn-write">Write a rabbit hole</Link>
+              <Link href="/write" className="btn-write">Write something</Link>
             </>
           ) : (
             <>
               <Link href="/auth/sign-in" className="navlink auth">Sign in</Link>
-              <Link href="/auth/sign-up" className="btn-write">Write a rabbit hole</Link>
+              <Link href="/auth/sign-up" className="btn-write">Write something</Link>
             </>
           )}
         </nav>

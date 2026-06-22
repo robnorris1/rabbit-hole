@@ -182,7 +182,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
       return 'Nothing in the rabbit hole that matches that. Maybe you should write it.';
     }
     if (tab === 'This week') {
-      return 'Quiet week. We\'re working on it.';
+      return 'Quiet week.';
     }
     return 'Nobody\'s watching. Perfect time to write something weird.';
   }
@@ -196,7 +196,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
           <div className="welcome-banner-in">
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
               <p className="welcome-heading">It begins.</p>
-              <Link href="/write" className="welcome-cta">Write your first rabbit hole →</Link>
+              <Link href="/write" className="welcome-cta">Write something →</Link>
             </div>
             <button className="welcome-dismiss" onClick={() => setWelcomeVisible(false)} aria-label="Dismiss">×</button>
           </div>

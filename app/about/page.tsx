@@ -41,7 +41,7 @@ export default async function AboutPage() {
               Neither of them had anywhere to put it.
             </p>
             <p style={{ margin: 0 }}>
-              Write about something you went too deep on. Nobody asked for the takeaways.
+              Nobody asked for the takeaways. Write it anyway.
             </p>
             <p style={{ margin: 0 }}>
               The most upvoted holes each quarter get printed into a physical book. Yes, physical.

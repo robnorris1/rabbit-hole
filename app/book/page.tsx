@@ -29,7 +29,7 @@ export default async function BookPage() {
             fontSize: 'clamp(28px,4vw,46px)', lineHeight: 1.08,
             letterSpacing: '-0.02em', margin: '0 0 32px', textWrap: 'balance',
           }}>
-            A quarterly book, full of holes (pause).
+            A quarterly book, full of holes.
           </h1>
 
           <div style={{
