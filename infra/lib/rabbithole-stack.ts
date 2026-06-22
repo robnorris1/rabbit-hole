@@ -84,6 +84,10 @@ export class RabbitholeStack extends cdk.Stack {
       removalPolicy: isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
+    // CDK doesn't reliably set LambdaConfig.KMSKeyID via customSenderKmsKey — force it
+    const cfnUserPool = userPool.node.defaultChild as cognito.CfnUserPool;
+    cfnUserPool.addPropertyOverride('LambdaConfig.KMSKeyID', emailKey.keyArn);
+
     const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
       userPool,
       authFlows: {
