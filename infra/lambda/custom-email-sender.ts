@@ -24,6 +24,10 @@ export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => 
   const decryptResult = await kms.send(
     new DecryptCommand({
       CiphertextBlob: Buffer.from(encryptedCode, 'base64'),
+      EncryptionContext: {
+        'client-id': callerContext.clientId,
+        userPoolId,
+      },
     }),
   );
   const code = Buffer.from(decryptResult.Plaintext!).toString('utf-8');
