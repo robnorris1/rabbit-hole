@@ -8,13 +8,16 @@
     "cdk": "cdk"
   },
   "dependencies": {
+    "@aws-sdk/client-kms": "^3.0.0",
     "aws-cdk-lib": "^2.170.0",
     "cdk-nextjs-standalone": "^4.3.3",
     "constructs": "^10.0.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
     "@types/node": "^20",
     "aws-cdk": "^2.170.0",
+    "esbuild": "^0.24.0",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   }

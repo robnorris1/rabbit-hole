@@ -12,7 +12,8 @@ import {
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createUser, getUserByUsername } from '@/db/queries/users';
+import { createUser, getUserByEmail, getUserByUsername } from '@/db/queries/users';
+import { sendWelcomeEmail } from '@/app/_lib/email';
 
 const cognito = new CognitoIdentityProviderClient({ region: 'eu-west-2' });
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
@@ -108,6 +109,11 @@ export async function confirmSignUp(prevState: AuthState, formData: FormData): P
       return { error: 'Code expired. Please sign up again.' };
     return { error: 'Confirmation failed. Please try again.' };
   }
+
+  // Fire-and-forget — don't block the redirect on email delivery
+  getUserByEmail(email)
+    .then((user) => user && sendWelcomeEmail(email, user.username))
+    .catch(console.error);
 
   redirect(`/auth/sign-in?confirmed=1&email=${encodeURIComponent(email)}`);
 }

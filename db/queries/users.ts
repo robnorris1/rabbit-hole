@@ -12,6 +12,11 @@ export async function getUserByUsername(username: string) {
   return rows[0] ?? null;
 }
 
+export async function getUserByEmail(email: string) {
+  const rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return rows[0] ?? null;
+}
+
 export async function createUser(data: { cognitoSub: string; username: string; email: string }) {
   const [user] = await db.insert(users).values(data).returning();
   return user;

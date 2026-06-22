@@ -15,5 +15,5 @@
     "resolveJsonModule": true
   },
   "include": ["."],
-  "exclude": ["node_modules", "dist", "cdk.out"]
+  "exclude": ["node_modules", "dist", "cdk.out", "lambda"]
 }
