@@ -1,4 +1,6 @@
-import { KMSClient, DecryptCommand } from '@aws-sdk/client-kms';
+import { buildClient, CommitmentPolicy, KmsKeyringNode } from '@aws-crypto/client-node';
+
+const { decrypt } = buildClient(CommitmentPolicy.FORBID_ENCRYPT_ALLOW_DECRYPT);
 
 interface CognitoCustomEmailEvent {
   triggerSource: string;
@@ -10,27 +12,13 @@ interface CognitoCustomEmailEvent {
   };
 }
 
-const kms = new KMSClient({});
-
 export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => {
-  const { triggerSource, userPoolId, callerContext, request } = event;
+  const { triggerSource, request } = event;
   const { code: encryptedCode, userAttributes } = request;
 
-  console.log('triggerSource:', triggerSource);
-  console.log('userPoolId:', userPoolId);
-  console.log('clientId:', callerContext.clientId);
-  console.log('encryptedCode (first 40 chars):', encryptedCode?.slice(0, 40));
-
-  const decryptResult = await kms.send(
-    new DecryptCommand({
-      CiphertextBlob: Buffer.from(encryptedCode, 'base64'),
-      EncryptionContext: {
-        'client-id': callerContext.clientId,
-        userPoolId,
-      },
-    }),
-  );
-  const code = Buffer.from(decryptResult.Plaintext!).toString('utf-8');
+  const keyring = new KmsKeyringNode({ keyIds: [process.env.KMS_KEY_ARN!] });
+  const { plaintext } = await decrypt(keyring, Buffer.from(encryptedCode, 'base64'));
+  const code = plaintext.toString('utf-8');
 
   const email = userAttributes['email'];
   let subject: string;

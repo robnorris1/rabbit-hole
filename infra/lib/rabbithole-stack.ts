@@ -49,6 +49,7 @@ export class RabbitholeStack extends cdk.Stack {
       },
       environment: {
         RESEND_API_KEY: process.env.RESEND_API_KEY ?? '',
+        KMS_KEY_ARN: emailKey.keyArn,
       },
     });
 
