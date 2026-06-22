@@ -16,13 +16,14 @@ export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => 
   const { triggerSource, userPoolId, callerContext, request } = event;
   const { code: encryptedCode, userAttributes } = request;
 
+  console.log('triggerSource:', triggerSource);
+  console.log('userPoolId:', userPoolId);
+  console.log('clientId:', callerContext.clientId);
+  console.log('encryptedCode (first 40 chars):', encryptedCode?.slice(0, 40));
+
   const decryptResult = await kms.send(
     new DecryptCommand({
       CiphertextBlob: Buffer.from(encryptedCode, 'base64'),
-      EncryptionContext: {
-        'client-id': callerContext.clientId,
-        userPoolId,
-      },
     }),
   );
   const code = Buffer.from(decryptResult.Plaintext!).toString('utf-8');
