@@ -59,6 +59,14 @@ export async function getHoleBySlug(slug: string) {
   return rows[0] ?? null;
 }
 
+export async function getTotalUpvoteCount(): Promise<number> {
+  const rows = await db
+    .select({ total: sql<number>`COALESCE(SUM(${rabbitHoles.upvoteCount}), 0)::int` })
+    .from(rabbitHoles)
+    .where(eq(rabbitHoles.status, 'published'));
+  return rows[0]?.total ?? 0;
+}
+
 export async function getPublishedHoleCount(): Promise<number> {
   const rows = await db
     .select({ count: sql<number>`count(*)::int` })

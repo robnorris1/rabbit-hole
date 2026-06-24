@@ -6,6 +6,7 @@ import { getTimeStat } from '@/app/_lib/time-stats';
 import { EndOfHole } from '@/app/_components/EndOfHole';
 import { FirstPublishOverlay } from '@/app/_components/FirstPublishOverlay';
 import { TopBar } from '@/app/_components/TopBar';
+import { ScrollProgress } from '@/app/_components/ScrollProgress';
 import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
@@ -47,6 +48,7 @@ export default async function HolePage({ params, searchParams }: Props) {
 
   return (
     <div className="shell">
+      <ScrollProgress />
       {isFirstPublish && <FirstPublishOverlay />}
       <TopBar currentUser={currentUser ? { username: currentUser.username } : null} />
 
@@ -61,7 +63,7 @@ export default async function HolePage({ params, searchParams }: Props) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <span className="kicker">Rabbit hole</span>
                 <span className="dot" />
-                <span className="mono">{hole.readTimeMins} min read</span>
+                <span className="mono">{hole.readTimeMins} min hole</span>
               </div>
 
               <h1 style={{

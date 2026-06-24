@@ -87,7 +87,7 @@ export function EndOfHole({ readTimeMins, upvoteCount, timeStat, holeId, initial
           <span className="label">went down this too</span>
         </button>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
-          {readTimeMins} min read
+          {readTimeMins} min hole
         </span>
       </div>
 

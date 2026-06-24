@@ -122,7 +122,7 @@ export default async function ProfilePage({ params }: Props) {
                       )}
                       <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                         <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>
-                          {h.readTimeMins} min
+                          {h.readTimeMins} min hole
                         </span>
                         <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>
                           {h.upvoteCount.toLocaleString()} went down this too

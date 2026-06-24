@@ -9,7 +9,7 @@ import { TopBar, type CurrentUser } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
 
-const TABS = ['Latest', 'Most lost to', 'This week'] as const;
+const TABS = ['Latest', 'Most lost to', 'Lost this week'] as const;
 
 function UpIcon() {
   return (
@@ -33,13 +33,13 @@ function Vote({ count, voted, onClick }: { count: number; voted: boolean; onClic
   );
 }
 
-function Featured({ post, count, voted, onVote }: { post: FeedHole; count: number; voted: boolean; onVote: () => void }) {
+function Featured({ post, count, voted, onVote, onTagClick }: { post: FeedHole; count: number; voted: boolean; onVote: () => void; onTagClick: (tag: string) => void }) {
   return (
     <Link href={`/holes/${post.slug}`} className="featured">
       <div className="featured-tag">
         <span className="kicker">Editor&apos;s rabbit hole</span>
         <span className="dot" />
-        <span className="mono">{post.readTimeMins} min</span>
+        <span className="mono">{post.readTimeMins} min hole</span>
       </div>
       <h2>{post.title}</h2>
       {post.excerpt && <p className="row-excerpt">{post.excerpt}</p>}
@@ -49,6 +49,19 @@ function Featured({ post, count, voted, onVote }: { post: FeedHole; count: numbe
         <span className="filters-spacer" />
         <Vote count={count} voted={voted} onClick={onVote} />
       </div>
+      {post.tags.length > 0 && (
+        <div className="tags" style={{ marginTop: 12 }}>
+          {post.tags.map((t) => (
+            <button
+              key={t}
+              className="tag"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTagClick(t); }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
     </Link>
   );
 }
@@ -90,7 +103,7 @@ function FeedRow({ post, count, index, layout, voted, onVote, onTagClick }: {
           {post.excerpt && <p className="row-excerpt">{post.excerpt}</p>}
           <div className="row-meta">
             <span className="meta-item"><span className="author">@{post.authorUsername}</span></span>
-            <span className="meta-item">{post.readTimeMins} min</span>
+            <span className="meta-item">{post.readTimeMins} min hole</span>
           </div>
           {tags}
         </div>
@@ -122,9 +135,10 @@ interface Props {
   weeklyHoleIds?: string[];
   showWelcome?: boolean;
   holeCount?: number;
+  totalUpvotes?: number;
 }
 
-export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelcome, holeCount }: Props) {
+export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelcome, holeCount, totalUpvotes }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<string>(TABS[0]);
@@ -166,7 +180,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
     }
     if (tab === 'Most lost to') {
       list.sort((a, b) => voteCount(b) - voteCount(a));
-    } else if (tab === 'This week') {
+    } else if (tab === 'Lost this week') {
       const order = new Map((weeklyHoleIds ?? []).map((id, i) => [id, i]));
       list = list.filter((h) => order.has(h.id));
       list.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -181,7 +195,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
     if (query.trim()) {
       return 'Nothing in the rabbit hole that matches that. Maybe you should write it.';
     }
-    if (tab === 'This week') {
+    if (tab === 'Lost this week') {
       return 'Quiet week.';
     }
     return 'Nobody\'s watching. Perfect time to write something weird.';
@@ -206,11 +220,13 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
       <section className="masthead">
         <div className="wrap">
           <div className="masthead-meta">
-            <span className="kicker">Founding</span>
             {holeCount != null && (
+              <span className="mono">{holeCount} {holeCount === 1 ? 'hole' : 'holes'}</span>
+            )}
+            {totalUpvotes != null && totalUpvotes > 0 && (
               <>
                 <span className="dot" />
-                <span className="mono">{holeCount} rabbit {holeCount === 1 ? 'hole' : 'holes'}</span>
+                <span className="mono">{totalUpvotes.toLocaleString()} people lost</span>
               </>
             )}
           </div>
@@ -235,7 +251,7 @@ export function FeedPage({ holes, currentUser, votedIds, weeklyHoleIds, showWelc
         <div className="main">
           <main>
             {featuredPost && (
-              <Featured post={featuredPost} count={voteCount(featuredPost)} voted={!!votes[featuredPost.id]} onVote={() => toggleVote(featuredPost.id)} />
+              <Featured post={featuredPost} count={voteCount(featuredPost)} voted={!!votes[featuredPost.id]} onVote={() => toggleVote(featuredPost.id)} onTagClick={setQuery} />
             )}
 
             {listPosts.length === 0 ? (

@@ -1,4 +1,4 @@
-import { getFeed, getPublishedHoleCount } from '@/db/queries/holes';
+import { getFeed, getPublishedHoleCount, getTotalUpvoteCount } from '@/db/queries/holes';
 import { getSession } from './_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 import { getUpvotedHoleIds, getWeeklyHoleIds } from '@/db/queries/upvotes';
@@ -10,7 +10,7 @@ interface Props {
 
 export default async function Page({ searchParams }: Props) {
   const { welcome } = await searchParams;
-  const [holes, session, weeklyHoleIds, holeCount] = await Promise.all([getFeed(), getSession(), getWeeklyHoleIds(), getPublishedHoleCount()]);
+  const [holes, session, weeklyHoleIds, holeCount, totalUpvotes] = await Promise.all([getFeed(), getSession(), getWeeklyHoleIds(), getPublishedHoleCount(), getTotalUpvoteCount()]);
   const currentUser = session ? await getUserByCognitoSub(session.sub) : null;
   const votedIds = currentUser ? await getUpvotedHoleIds(currentUser.id) : [];
   return (
@@ -21,6 +21,7 @@ export default async function Page({ searchParams }: Props) {
       weeklyHoleIds={weeklyHoleIds}
       showWelcome={welcome === '1'}
       holeCount={holeCount}
+      totalUpvotes={totalUpvotes}
     />
   );
 }
