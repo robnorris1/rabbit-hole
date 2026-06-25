@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { TopBar } from '@/app/_components/TopBar';
 import { WriteEditor } from '@/app/_components/WriteEditor';
-import { getDraftById } from '@/db/queries/holes';
+import { getHoleByIdForEdit } from '@/db/queries/holes';
 import { requireSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
@@ -17,12 +18,14 @@ export default async function WritePage({ searchParams }: Props) {
     searchParams,
     getUserByCognitoSub(session.sub),
   ]);
-  const draft = id ? await getDraftById(id) : null;
+
+  let hole = id ? await getHoleByIdForEdit(id) : null;
+  if (hole && hole.authorId !== currentUser?.id) redirect('/');
 
   return (
     <div className="shell">
       <TopBar currentUser={currentUser ? { username: currentUser.username } : null} />
-      <WriteEditor draft={draft} />
+      <WriteEditor hole={hole} />
     </div>
   );
 }

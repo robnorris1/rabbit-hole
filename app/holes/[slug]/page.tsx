@@ -82,6 +82,12 @@ export default async function HolePage({ params, searchParams }: Props) {
                     <span className="mono" style={{ textTransform: 'none', letterSpacing: 0 }}>{publishedDate}</span>
                   </>
                 )}
+                {isAuthor && (
+                  <>
+                    <span className="dot" />
+                    <Link href={`/write?id=${hole.id}`} className="mono" style={{ fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Edit</Link>
+                  </>
+                )}
               </div>
             </header>
 

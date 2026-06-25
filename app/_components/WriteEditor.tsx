@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { saveDraft, publishHole } from '@/app/write/actions';
-import type { DraftDetail } from '@/db/queries/holes';
+import { saveDraft, publishHole, savePublishedHole } from '@/app/write/actions';
+import type { EditableHole } from '@/db/queries/holes';
 
 const STATUS_LABEL: Record<string, string> = {
   idle: '',
@@ -15,17 +15,19 @@ function parseTags(raw: string): string[] {
   return raw.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
 }
 
-export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
-  const [title, setTitle] = useState(draft?.title ?? '');
-  const [body, setBody] = useState(draft?.body ?? '');
-  const [tagsRaw, setTagsRaw] = useState((draft?.tags ?? []).join(', '));
+export function WriteEditor({ hole }: { hole: EditableHole | null }) {
+  const isPublished = hole?.status === 'published';
+
+  const [title, setTitle] = useState(hole?.title ?? '');
+  const [body, setBody] = useState(hole?.body ?? '');
+  const [tagsRaw, setTagsRaw] = useState((hole?.tags ?? []).join(', '));
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [publishing, setPublishing] = useState(false);
 
   const titleRef = useRef(title);
   const bodyRef = useRef(body);
   const tagsRawRef = useRef(tagsRaw);
-  const holeIdRef = useRef<string | null>(draft?.id ?? null);
+  const holeIdRef = useRef<string | null>(hole?.id ?? null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function scheduleSave() {
@@ -34,12 +36,20 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
       if (!titleRef.current.trim() && !bodyRef.current.trim()) return;
       setSaveStatus('saving');
       try {
-        const result = await saveDraft(holeIdRef.current, {
-          title: titleRef.current,
-          body: bodyRef.current,
-          tags: parseTags(tagsRawRef.current),
-        });
-        holeIdRef.current = result.id;
+        if (isPublished && holeIdRef.current) {
+          await savePublishedHole(holeIdRef.current, {
+            title: titleRef.current,
+            body: bodyRef.current,
+            tags: parseTags(tagsRawRef.current),
+          });
+        } else {
+          const result = await saveDraft(holeIdRef.current, {
+            title: titleRef.current,
+            body: bodyRef.current,
+            tags: parseTags(tagsRawRef.current),
+          });
+          holeIdRef.current = result.id;
+        }
         setSaveStatus('saved');
       } catch {
         setSaveStatus('error');
@@ -67,7 +77,28 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
     }
   }
 
-  const canPublish = title.trim().length > 0 && !publishing;
+  async function handleSave() {
+    if (!holeIdRef.current) return;
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    setPublishing(true);
+    try {
+      await savePublishedHole(holeIdRef.current, {
+        title: titleRef.current,
+        body: bodyRef.current,
+        tags: parseTags(tagsRawRef.current),
+      });
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('error');
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  const canAct = title.trim().length > 0 && !publishing;
 
   return (
     <div className="wrap" style={{ paddingTop: 'clamp(40px,5vw,64px)', paddingBottom: 96 }}>
@@ -83,19 +114,28 @@ export function WriteEditor({ draft }: { draft: DraftDetail | null }) {
             {STATUS_LABEL[saveStatus]}
           </span>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <a
-              href="/drafts"
-              style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}
-            >
-              All drafts
-            </a>
+            {isPublished && hole?.slug ? (
+              <a
+                href={`/holes/${hole.slug}`}
+                style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}
+              >
+                ← View
+              </a>
+            ) : (
+              <a
+                href="/drafts"
+                style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}
+              >
+                All drafts
+              </a>
+            )}
             <button
-              onClick={handlePublish}
-              disabled={!canPublish}
+              onClick={isPublished ? handleSave : handlePublish}
+              disabled={!canAct}
               className="btn-write"
-              style={{ opacity: canPublish ? 1 : 0.4, cursor: canPublish ? 'pointer' : 'not-allowed' }}
+              style={{ opacity: canAct ? 1 : 0.4, cursor: canAct ? 'pointer' : 'not-allowed' }}
             >
-              {publishing ? 'Publishing…' : 'Publish'}
+              {publishing ? (isPublished ? 'Saving…' : 'Publishing…') : (isPublished ? 'Save' : 'Publish')}
             </button>
           </div>
         </div>

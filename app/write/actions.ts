@@ -50,6 +50,19 @@ export async function saveDraft(
   return { id: row.id };
 }
 
+export async function savePublishedHole(
+  holeId: string,
+  data: { title: string; body: string; tags: string[] },
+): Promise<void> {
+  const authorId = await getAuthorId();
+  const wordCount = data.body.trim().split(/\s+/).filter(Boolean).length;
+  const readTimeMins = Math.max(1, Math.round(wordCount / 250));
+  await db
+    .update(rabbitHoles)
+    .set({ title: data.title, body: data.body, tags: data.tags, readTimeMins, updatedAt: new Date() })
+    .where(and(eq(rabbitHoles.id, holeId), eq(rabbitHoles.authorId, authorId), eq(rabbitHoles.status, 'published')));
+}
+
 export async function publishHole(holeId: string): Promise<void> {
   const authorId = await getAuthorId();
 

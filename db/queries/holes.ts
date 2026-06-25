@@ -117,8 +117,26 @@ export async function getDraftById(id: string) {
   return rows[0] ?? null;
 }
 
+export async function getHoleByIdForEdit(id: string) {
+  const rows = await db
+    .select({
+      id: rabbitHoles.id,
+      title: rabbitHoles.title,
+      body: rabbitHoles.body,
+      tags: rabbitHoles.tags,
+      status: rabbitHoles.status,
+      authorId: rabbitHoles.authorId,
+      slug: rabbitHoles.slug,
+    })
+    .from(rabbitHoles)
+    .where(eq(rabbitHoles.id, id))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export type FeedHole = Awaited<ReturnType<typeof getFeed>>[number];
 export type DeepItem = Awaited<ReturnType<typeof getDeepNow>>[number];
 export type FullHole = NonNullable<Awaited<ReturnType<typeof getHoleBySlug>>>;
 export type DraftItem = Awaited<ReturnType<typeof getDraftsByAuthor>>[number];
 export type DraftDetail = NonNullable<Awaited<ReturnType<typeof getDraftById>>>;
+export type EditableHole = NonNullable<Awaited<ReturnType<typeof getHoleByIdForEdit>>>;
