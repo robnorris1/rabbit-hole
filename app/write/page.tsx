@@ -19,7 +19,7 @@ export default async function WritePage({ searchParams }: Props) {
     getUserByCognitoSub(session.sub),
   ]);
 
-  let hole = id ? await getHoleByIdForEdit(id) : null;
+  const hole = id ? await getHoleByIdForEdit(id) : null;
   if (hole && hole.authorId !== currentUser?.id) redirect('/');
 
   return (
