@@ -23,6 +23,7 @@ export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => 
   const email = userAttributes['email'];
   let subject: string;
   let html: string;
+  let text: string;
 
   if (
     triggerSource === 'CustomEmailSender_SignUp' ||
@@ -30,9 +31,11 @@ export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => 
   ) {
     subject = 'Your Rabbithole verification code';
     html = verificationHtml(code);
+    text = `Your Rabbithole verification code: ${code}\n\nExpires in 24 hours.`;
   } else if (triggerSource === 'CustomEmailSender_ForgotPassword') {
     subject = 'Reset your Rabbithole password';
     html = passwordResetHtml(code);
+    text = `Your Rabbithole password reset code: ${code}\n\nExpires in 1 hour.`;
   } else {
     return;
   }
@@ -44,10 +47,11 @@ export const handler = async (event: CognitoCustomEmailEvent): Promise<void> => 
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Rabbithole <noreply@the-rabbit-hole.app>',
+      from: 'Rabbithole <hello@the-rabbit-hole.app>',
       to: [email],
       subject,
       html,
+      text,
     }),
   });
 

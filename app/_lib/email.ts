@@ -1,4 +1,4 @@
-const FROM = 'Rabbithole <noreply@the-rabbit-hole.app>';
+const FROM = 'Rabbithole <hello@the-rabbit-hole.app>';
 
 export async function sendWelcomeEmail(to: string, username: string): Promise<void> {
   const res = await fetch('https://api.resend.com/emails', {
@@ -12,12 +12,17 @@ export async function sendWelcomeEmail(to: string, username: string): Promise<vo
       to: [to],
       subject: `welcome, @${username}.`,
       html: welcomeHtml(username),
+      text: welcomeText(username),
     }),
   });
 
   if (!res.ok) {
     console.error('Welcome email failed:', await res.text());
   }
+}
+
+function welcomeText(username: string): string {
+  return `welcome, @${username}.\n\nyou'll figure it out.\n\nhttps://the-rabbit-hole.app/write`;
 }
 
 function welcomeHtml(username: string): string {
