@@ -12,6 +12,7 @@ import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 import { isUpvoted } from '@/db/queries/upvotes';
 import { hasFlagged } from '@/db/queries/flags';
+import { SITE_URL, holeDescription } from '@/app/_lib/site';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,9 +23,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const hole = await getHoleBySlug(slug);
   if (!hole) return {};
+  const description = holeDescription(hole.body);
+  const url = `${SITE_URL}/holes/${slug}`;
   return {
-    title: `${hole.title} — rabbithole`,
-    description: hole.body.split('\n\n')[0].slice(0, 160) || undefined,
+    // Title template in layout.tsx appends " — rabbithole".
+    title: hole.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: hole.title,
+      description,
+      url,
+      type: 'article',
+      publishedTime: hole.publishedAt
+        ? new Date(hole.publishedAt).toISOString()
+        : undefined,
+      authors: [`@${hole.authorUsername}`],
+      tags: hole.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: hole.title,
+      description,
+    },
   };
 }
 

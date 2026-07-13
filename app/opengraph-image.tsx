@@ -1,10 +1,15 @@
 import { ImageResponse } from 'next/og';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export const alt = 'rabbithole — Proof that people still think interesting thoughts.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function Image() {
+export default async function Image() {
+  const serif = await readFile(
+    join(process.cwd(), 'app/_fonts/Newsreader-Medium.ttf'),
+  );
   return new ImageResponse(
     (
       <div
@@ -27,6 +32,7 @@ export default function Image() {
             <path d="M27 23 C 31.5 15 32 7 29 5 C 26 6.5 26 15 25.5 23 Z" fill="white" />
             <g fill="none" stroke="white" strokeWidth="5" strokeLinecap="round">
               <path d="M13.5 30 A 10.5 10.5 0 0 1 34.5 30" />
+              <path d="M24 27.5 v1.4" />
               <path d="M2 30 L 13 30" />
               <path d="M35 30 L 46 30" />
             </g>
@@ -46,8 +52,7 @@ export default function Image() {
             style={{
               color: '#1b1a18',
               fontSize: 72,
-              fontWeight: 600,
-              fontFamily: 'Georgia, serif',
+              fontFamily: 'Newsreader',
               letterSpacing: '-1px',
             }}
           >
@@ -66,6 +71,9 @@ export default function Image() {
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      fonts: [{ name: 'Newsreader', data: serif, style: 'normal', weight: 500 }],
+    },
   );
 }
