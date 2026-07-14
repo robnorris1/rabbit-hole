@@ -134,6 +134,19 @@ export async function getHoleByIdForEdit(id: string) {
   return rows[0] ?? null;
 }
 
+// Slug + last-modified for every published hole — used by the sitemap.
+export async function getPublishedHolesForSitemap() {
+  return db
+    .select({
+      slug: rabbitHoles.slug,
+      updatedAt: rabbitHoles.updatedAt,
+      publishedAt: rabbitHoles.publishedAt,
+    })
+    .from(rabbitHoles)
+    .where(eq(rabbitHoles.status, 'published'))
+    .orderBy(desc(rabbitHoles.publishedAt));
+}
+
 export type FeedHole = Awaited<ReturnType<typeof getFeed>>[number];
 export type DeepItem = Awaited<ReturnType<typeof getDeepNow>>[number];
 export type FullHole = NonNullable<Awaited<ReturnType<typeof getHoleBySlug>>>;

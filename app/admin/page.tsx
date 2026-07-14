@@ -8,7 +8,7 @@ import { TopBar } from '@/app/_components/TopBar';
 import { Footer } from '@/app/_components/Footer';
 import { unpublishHoleAction, dismissFlagsAction } from './actions';
 
-export const metadata: Metadata = { title: 'Admin — rabbithole' };
+export const metadata: Metadata = { title: 'Admin' };
 
 export default async function AdminPage() {
   const session = await getSession();

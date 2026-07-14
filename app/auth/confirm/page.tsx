@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Rabbit } from '@/app/_components/Rabbit';
 import { ConfirmForm } from '../_components/ConfirmForm';
 
-export const metadata: Metadata = { title: 'Confirm email — rabbithole' };
+export const metadata: Metadata = { title: 'Confirm email' };
 
 interface Props {
   searchParams: Promise<{ email?: string }>;

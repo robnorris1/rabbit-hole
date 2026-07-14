@@ -6,7 +6,7 @@ import { getDraftsByAuthor } from '@/db/queries/holes';
 import { requireSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
-export const metadata: Metadata = { title: 'Drafts — rabbithole' };
+export const metadata: Metadata = { title: 'Drafts' };
 
 export default async function DraftsPage() {
   const session = await requireSession();

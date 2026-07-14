@@ -6,7 +6,7 @@ import { getHoleByIdForEdit } from '@/db/queries/holes';
 import { requireSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
-export const metadata: Metadata = { title: 'Write — rabbithole' };
+export const metadata: Metadata = { title: 'Write' };
 
 interface Props {
   searchParams: Promise<{ id?: string }>;

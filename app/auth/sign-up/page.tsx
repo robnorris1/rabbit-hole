@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Rabbit } from '@/app/_components/Rabbit';
 import { SignUpForm } from '../_components/SignUpForm';
 
-export const metadata: Metadata = { title: 'Sign up — rabbithole' };
+export const metadata: Metadata = { title: 'Sign up' };
 
 export default function SignUpPage() {
   return (

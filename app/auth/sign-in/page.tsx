@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Rabbit } from '@/app/_components/Rabbit';
 import { SignInForm } from '../_components/SignInForm';
 
-export const metadata: Metadata = { title: 'Sign in — rabbithole' };
+export const metadata: Metadata = { title: 'Sign in' };
 
 interface Props {
   searchParams: Promise<{ email?: string; confirmed?: string }>;

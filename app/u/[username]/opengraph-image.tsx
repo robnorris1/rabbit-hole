@@ -1,38 +1,45 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { getHoleBySlug } from '@/db/queries/holes';
+import { getUserByUsername } from '@/db/queries/users';
+import { getPublishedHoleCountByAuthor } from '@/db/queries/holes';
+import { getFollowCounts } from '@/db/queries/follows';
 
-export const alt = 'A rabbit hole on rabbithole';
+export const alt = 'A writer on rabbithole';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-// Brand palette (light "paper" mode) — kept in sync with the site-level
-// opengraph-image.tsx so article cards and the default card read as one set.
+// Kept in sync with the site + article cards so all three read as one set.
 const PAPER = '#f4f0e7';
 const INK = '#1b1a18';
 const INK_2 = '#57534a';
 const ACCENT = '#9a4a32';
 
+function plural(n: number, one: string, many: string) {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
 export default async function Image({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ username: string }>;
 }) {
-  const { slug } = await params;
-  const [hole, serifMedium, serifSemiBold] = await Promise.all([
-    getHoleBySlug(slug),
+  const { username } = await params;
+  const [user, serifMedium, serifSemiBold] = await Promise.all([
+    getUserByUsername(username),
     readFile(join(process.cwd(), 'app/_fonts/Newsreader-Medium.ttf')),
     readFile(join(process.cwd(), 'app/_fonts/Newsreader-SemiBold.ttf')),
   ]);
 
-  // Fall back to the generic mark if the hole vanished between request and render.
-  const title = hole?.title ?? 'rabbithole';
-  const author = hole?.authorUsername;
-  const readTime = hole?.readTimeMins;
+  const [holeCount, followCounts] = user
+    ? await Promise.all([
+        getPublishedHoleCountByAuthor(user.id),
+        getFollowCounts(user.id),
+      ])
+    : [0, { followers: 0, following: 0 }];
 
-  // Scale the headline down for longer titles so it never overflows the card.
-  const titleSize = title.length > 90 ? 54 : title.length > 50 ? 66 : 80;
+  const bioRaw = user?.bio?.trim();
+  const bio = bioRaw && bioRaw.length > 140 ? `${bioRaw.slice(0, 140).trimEnd()}…` : bioRaw;
 
   return new ImageResponse(
     (
@@ -47,7 +54,7 @@ export default async function Image({
           padding: '72px 80px',
         }}
       >
-        {/* Brand lockup: rabbit badge + wordmark */}
+        {/* Brand lockup */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width={52} height={52}>
             <rect width="100" height="100" rx="22" fill={ACCENT} />
@@ -75,37 +82,50 @@ export default async function Image({
           </span>
         </div>
 
-        {/* Title + byline, grouped */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+        {/* Handle + bio */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div
             style={{
               display: 'flex',
               fontFamily: 'Newsreader',
-              fontSize: titleSize,
-              lineHeight: 1.05,
-              letterSpacing: '-0.02em',
+              fontWeight: 600,
+              fontSize: 84,
+              lineHeight: 1.02,
+              letterSpacing: '-0.03em',
               color: INK,
-              maxWidth: 1040,
             }}
           >
-            {title}
+            @{username}
           </div>
+          {bio && (
+            <div
+              style={{
+                display: 'flex',
+                fontFamily: 'Newsreader',
+                fontSize: 34,
+                lineHeight: 1.35,
+                color: INK_2,
+                maxWidth: 960,
+              }}
+            >
+              {bio}
+            </div>
+          )}
+        </div>
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              fontSize: 26,
-              color: INK_2,
-            }}
-          >
-            {author && <span style={{ color: INK }}>@{author}</span>}
-            {author && readTime != null && (
-              <span style={{ color: ACCENT }}>·</span>
-            )}
-            {readTime != null && <span>{readTime} min hole</span>}
-          </div>
+        {/* Stats */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            fontSize: 26,
+            color: INK_2,
+          }}
+        >
+          <span style={{ color: INK }}>{plural(holeCount, 'rabbit hole', 'rabbit holes')}</span>
+          <span style={{ color: ACCENT }}>·</span>
+          <span>{plural(followCounts.followers, 'follower', 'followers')}</span>
         </div>
       </div>
     ),

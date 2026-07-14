@@ -9,6 +9,7 @@ import { getFollowCounts, isFollowing } from '@/db/queries/follows';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 import { toggleFollowAction } from './actions';
+import { SITE_URL } from '@/app/_lib/site';
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -16,7 +17,26 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  return { title: `@${username} — rabbithole` };
+  const profileUser = await getUserByUsername(username);
+  if (!profileUser) return { title: `@${username}` };
+  const description = profileUser.bio || `@${username} on rabbithole.`;
+  const url = `${SITE_URL}/u/${username}`;
+  return {
+    title: `@${username}`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `@${username}`,
+      description,
+      url,
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `@${username}`,
+      description,
+    },
+  };
 }
 
 export default async function ProfilePage({ params }: Props) {

@@ -5,7 +5,7 @@ import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
-export const metadata: Metadata = { title: 'The book — rabbithole' };
+export const metadata: Metadata = { title: 'The book' };
 
 export default async function BookPage() {
   const session = await getSession();

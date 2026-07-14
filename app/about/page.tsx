@@ -5,7 +5,7 @@ import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
-export const metadata: Metadata = { title: 'About — rabbithole' };
+export const metadata: Metadata = { title: 'About' };
 
 export default async function AboutPage() {
   const session = await getSession();
