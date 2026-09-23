@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { TopBar } from '@/app/_components/TopBar';
 import { Footer } from '@/app/_components/Footer';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
+import { SHOW_MEMBERSHIP } from '@/app/_lib/flags';
 
 export const metadata: Metadata = { title: 'Membership' };
 
 export default async function MembershipPage() {
+  if (!SHOW_MEMBERSHIP) notFound();
+
   const session = await getSession();
   const currentUser = session ? await getUserByCognitoSub(session.sub) : null;
 

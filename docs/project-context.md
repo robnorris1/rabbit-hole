@@ -32,6 +32,8 @@ A UGC platform where people write about things they've gone genuinely deep on. E
 
 **Phases 0–5 = MVP.** ✅ Complete — focus now is seeding with real writers and real holes before monetising.
 
+**Membership + book hidden from UI (Sep 2026):** all Pro/book surfaces are gated behind `SHOW_MEMBERSHIP = false` in `app/_lib/flags.ts` — sidebar block (sidebar is just the manifesto for now), footer links, about-page book line, sitemap entries, and `/membership` + `/book` (return 404). Reason: it read as salesy before there's an audience; priority is getting writers on. Flip the flag to restore.
+
 **Why Stripe is deferred:** Pro membership only makes sense once there's enough content worth paying for. Ship the "coming soon" UI to signal intent, but don't build the payment flow until there's a real reader audience to convert.
 
 ### Phase 3 — what was built

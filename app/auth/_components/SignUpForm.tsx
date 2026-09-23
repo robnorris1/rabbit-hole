@@ -54,6 +54,12 @@ export function SignUpForm() {
         {pending ? 'Creating account…' : 'Create account'}
       </button>
 
+      <p className="auth-hint" style={{ textAlign: 'center', margin: 0 }}>
+        By creating an account you agree to the{' '}
+        <Link href="/terms" className="auth-link">terms</Link> and{' '}
+        <Link href="/privacy" className="auth-link">privacy policy</Link>.
+      </p>
+
       <p className="auth-footer">
         Already have an account? <Link href="/auth/sign-in" className="auth-link">Sign in</Link>
       </p>

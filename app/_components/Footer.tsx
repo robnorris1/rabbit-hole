@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Rabbit } from './Rabbit';
+import { SHOW_MEMBERSHIP } from '@/app/_lib/flags';
 
 export function Footer() {
   return (
@@ -10,9 +11,15 @@ export function Footer() {
           <div className="foot-links">
             <Link href="/">Read</Link>
             <Link href="/write">Write</Link>
-            <Link href="/membership">Membership</Link>
-            <Link href="/book">The book</Link>
+            {SHOW_MEMBERSHIP && (
+              <>
+                <Link href="/membership">Membership</Link>
+                <Link href="/book">The book</Link>
+              </>
+            )}
             <Link href="/about">About</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
           </div>
         </div>
         <Rabbit size={56} stroke={1.8} className="foot-rabbit" />

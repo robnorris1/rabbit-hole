@@ -1,4 +1,5 @@
 import { Rabbit } from './Rabbit';
+import { SHOW_MEMBERSHIP } from '@/app/_lib/flags';
 
 function ProBook() {
   return (
@@ -43,8 +44,9 @@ function Manifesto() {
         <p className="strike">Your morning routine.</p>
         <p className="strike">Anything with the word &ldquo;journey&rdquo; in it.</p>
         <p className="strike">5 lessons. 7 habits. 10 things.</p>
-        <p>Estimated time: longer than you think.</p>
-        <p>You will not use any of this at work.</p>
+        <p className="strike">What running a marathon taught me about B2B sales.</p>
+        <p className="strike">Actionable.</p>
+        <p>Content. Well, technically.</p>
       </div>
     </div>
   );
@@ -53,7 +55,7 @@ function Manifesto() {
 export function Sidebar() {
   return (
     <aside className="sidebar">
-      <ProBook />
+      {SHOW_MEMBERSHIP && <ProBook />}
       <Manifesto />
     </aside>
   );

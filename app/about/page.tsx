@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { TopBar } from '@/app/_components/TopBar';
 import { Footer } from '@/app/_components/Footer';
+import { SHOW_MEMBERSHIP } from '@/app/_lib/flags';
 import { getSession } from '@/app/_lib/session';
 import { getUserByCognitoSub } from '@/db/queries/users';
 
@@ -43,9 +44,11 @@ export default async function AboutPage() {
             <p style={{ margin: 0 }}>
               Nobody asked for the takeaways. Write it anyway.
             </p>
-            <p style={{ margin: 0 }}>
-              The most upvoted holes each quarter get printed into a physical book. Yes, physical.
-            </p>
+            {SHOW_MEMBERSHIP && (
+              <p style={{ margin: 0 }}>
+                The most upvoted holes each quarter get printed into a physical book. Yes, physical.
+              </p>
+            )}
           </div>
 
           <div className="manifesto" style={{ marginBottom: 48 }}>
@@ -53,8 +56,9 @@ export default async function AboutPage() {
             <p className="strike">Your morning routine.</p>
             <p className="strike">Anything with the word &ldquo;journey&rdquo; in it.</p>
             <p className="strike">5 lessons. 7 habits. 10 things.</p>
-            <p>Estimated time: longer than you think.</p>
-            <p>You will not use any of this at work.</p>
+            <p className="strike">What running a marathon taught me about B2B sales.</p>
+            <p className="strike">Actionable.</p>
+            <p>Content. Well, technically.</p>
           </div>
 
           <Link href="/" className="back-link">← Read something</Link>

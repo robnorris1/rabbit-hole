@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/app/_lib/site';
+import { SHOW_MEMBERSHIP } from '@/app/_lib/flags';
 import { getPublishedHolesForSitemap } from '@/db/queries/holes';
 import { getPublishedAuthorsForSitemap } from '@/db/queries/users';
 
@@ -17,8 +18,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: 'daily', priority: 1 },
     { url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${SITE_URL}/membership`, changeFrequency: 'monthly', priority: 0.3 },
-    { url: `${SITE_URL}/book`, changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${SITE_URL}/terms`, changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${SITE_URL}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
+    ...(SHOW_MEMBERSHIP
+      ? [
+          { url: `${SITE_URL}/membership`, changeFrequency: 'monthly', priority: 0.3 },
+          { url: `${SITE_URL}/book`, changeFrequency: 'monthly', priority: 0.3 },
+        ] satisfies MetadataRoute.Sitemap
+      : []),
   ];
 
   const holePages: MetadataRoute.Sitemap = holes
